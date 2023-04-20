@@ -1,12 +1,12 @@
-import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
-import { enableProdMode } from "@angular/core";
-import { bootstrapApplication } from "@angular/platform-browser";
-import { provideAnimations } from "@angular/platform-browser/animations";
-import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withRouterConfig } from "@angular/router";
-import { AppComponent } from "./app/app.component";
-import { appRoutes } from "./app/app.routes";
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { enableProdMode } from '@angular/core';
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withRouterConfig } from '@angular/router';
 import 'reflect-metadata';
-import { APP_CONFIG } from "./environments/environment";
+import { AppComponent } from './app/app.component';
+import { appRoutes } from './app/app.routes';
+import { APP_CONFIG } from './environments/environment';
 
 if (APP_CONFIG.production) {
   enableProdMode();
