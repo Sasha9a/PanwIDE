@@ -4,8 +4,8 @@ import { bootstrapApplication } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withRouterConfig } from '@angular/router';
 import 'reflect-metadata';
-import { AppComponent } from './app/app.component';
-import { appRoutes } from './app/app.routes';
+import { AppComponent } from './app/core/app.component';
+import { appRoutes } from './app/core/app.routes';
 import { APP_CONFIG } from './environments/environment';
 
 if (APP_CONFIG.production) {

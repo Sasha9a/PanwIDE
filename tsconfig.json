@@ -8,6 +8,12 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "strictFunctionTypes": false,
+    "strictNullChecks": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "suppressImplicitAnyIndexErrors": true,
     "allowJs": true,
     "target": "ES2022",
     "typeRoots": [
@@ -20,7 +26,9 @@
       "es2018",
       "dom"
     ],
-    "useDefineForClassFields": false
+    "useDefineForClassFields": false,
+    "skipDefaultLibCheck": true,
+    "allowSyntheticDefaultImports": true
   },
   "exclude": [
     "node_modules"
