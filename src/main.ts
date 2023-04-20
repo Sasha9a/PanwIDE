@@ -1,12 +1,26 @@
-import {provideHttpClient, withInterceptorsFromDi} from "@angular/common/http";
-import {bootstrapApplication} from "@angular/platform-browser";
-import {provideAnimations} from "@angular/platform-browser/animations";
-import {AppComponent} from "./app/app.component";
+import { provideHttpClient, withInterceptorsFromDi } from "@angular/common/http";
+import { enableProdMode } from "@angular/core";
+import { bootstrapApplication } from "@angular/platform-browser";
+import { provideAnimations } from "@angular/platform-browser/animations";
+import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling, withRouterConfig } from "@angular/router";
+import { AppComponent } from "./app/app.component";
+import { appRoutes } from "./app/app.routes";
+import 'reflect-metadata';
+import { APP_CONFIG } from "./environments/environment";
 
+if (APP_CONFIG.production) {
+  enableProdMode();
+}
 
 bootstrapApplication(AppComponent, {
   providers: [
+    provideRouter(
+      appRoutes,
+      withEnabledBlockingInitialNavigation(),
+      withRouterConfig({ onSameUrlNavigation: 'ignore' }),
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })
+    ),
     provideHttpClient(withInterceptorsFromDi()),
     provideAnimations()
   ]
-}).catch((err) => console.error(err));
+}).catch(console.error);

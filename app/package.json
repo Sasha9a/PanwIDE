@@ -1,0 +1,8 @@
+{
+  "name": "pawn-ide-electron",
+  "description": "Angular Electron sample",
+  "version": "1.0.0",
+  "main": "main.js",
+  "private": true,
+  "dependencies": {}
+}
