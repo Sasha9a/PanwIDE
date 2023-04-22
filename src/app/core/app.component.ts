@@ -18,7 +18,27 @@ export class AppComponent {
     return this.electronService.remote.getCurrentWindow().isMaximized();
   }
 
-  public constructor(private readonly electronService: ElectronService) {}
+  public constructor(private readonly electronService: ElectronService) {
+    const userDataPath = this.electronService.remote.app.getPath('userData');
+    let fullPath;
+    if (userDataPath.includes('\\')) {
+      fullPath = userDataPath + '\\localStorage.json';
+    } else {
+      fullPath = userDataPath + '/localStorage.json';
+    }
+
+    if (!this.electronService.fs.existsSync(fullPath)) {
+      this.electronService.fs.openSync(fullPath, 'w+');
+    }
+    this.electronService.fs.readFile(fullPath, (err, data) => {
+      if (err) {
+        throw err;
+      }
+      console.log('--------- [File Data] ---------');
+      console.log(data);
+      console.log('--------- [File Data] ---------');
+    });
+  }
 
   public closeProgram() {
     this.electronService.remote.getCurrentWindow().close();
