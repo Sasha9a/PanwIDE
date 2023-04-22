@@ -1,6 +1,9 @@
 @import "primeng/resources/themes/nano/theme.css";
 @import "primeng/resources/primeng.css";
 @import 'primeflex/primeflex.scss';
+@import "primeicons/primeicons.css";
+@import "@fortawesome/fontawesome-free/css/fontawesome.css";
+@import "@fortawesome/fontawesome-free/css/all.css";
 
 html {
   font-size: 12px;
@@ -16,4 +19,16 @@ body {
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.drag-header {
+  -webkit-app-region: drag;
+}
+
+img {
+  pointer-events: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }

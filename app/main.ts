@@ -2,6 +2,9 @@ import { app, BrowserWindow, screen } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 
+require('@electron/remote/main').initialize();
+const mainRemote = require('@electron/remote/main');
+
 let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
@@ -20,6 +23,7 @@ function createWindow(): BrowserWindow {
       allowRunningInsecureContent: serve,
       contextIsolation: false // false if you want to run e2e test with Spectron
     },
+    frame: false,
     icon: __dirname + '/../src/assets/icons/favicon.png'
   });
 
@@ -43,6 +47,7 @@ function createWindow(): BrowserWindow {
   }
 
   win.webContents.openDevTools();
+  mainRemote.enable(win.webContents);
 
   // Emitted when the window is closed.
   win.on('closed', () => {

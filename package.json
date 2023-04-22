@@ -49,6 +49,8 @@
     "@angular-eslint/template-parser": "15.2.1",
     "@angular/cli": "15.2.6",
     "@angular/compiler-cli": "15.2.8",
+    "@fortawesome/fontawesome-free": "6.4.0",
+    "@electron/remote": "2.0.9",
     "@types/node": "18.14.0",
     "@typescript-eslint/eslint-plugin": "5.48.0",
     "@typescript-eslint/parser": "5.48.0",
