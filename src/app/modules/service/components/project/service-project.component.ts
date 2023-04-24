@@ -1,22 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ElectronService } from '../../../../core/services/electron.service';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
+import { ObjectKeysPipe } from '../../../../shared/pipes/object-keys.pipe';
 import { ServiceProjectItemInterface } from '../../interfaces/service.project.item.interface';
 
 @Component({
   standalone: true,
   selector: 'app-service-project',
   templateUrl: './service-project.component.html',
-  imports: [CommonModule],
+  imports: [CommonModule, ObjectKeysPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServiceProjectComponent implements OnInit {
   public openDirectory$: Observable<string>;
   public files: Record<string, ServiceProjectItemInterface> = {};
 
-  public constructor(public readonly globalStorageService: GlobalStorageService, private readonly electronService: ElectronService) {}
+  public constructor(
+    public readonly globalStorageService: GlobalStorageService,
+    private readonly electronService: ElectronService,
+    private readonly cdRef: ChangeDetectorRef
+  ) {}
 
   public ngOnInit() {
     this.openDirectory$ = this.globalStorageService.select((state) => state.openDirectory);
@@ -29,7 +34,7 @@ export class ServiceProjectComponent implements OnInit {
 
   private parseFiles(path: string, info: Record<string, ServiceProjectItemInterface>) {
     this.electronService.fs.stat(path, (err, stats) => {
-      if (!err) {
+      if (err) {
         console.error(err);
         return;
       }
@@ -43,7 +48,7 @@ export class ServiceProjectComponent implements OnInit {
 
       if (stats.isDirectory()) {
         this.electronService.fs.readdir(path, (err, items) => {
-          if (!err) {
+          if (err) {
             console.error(err);
             return;
           }
@@ -51,7 +56,7 @@ export class ServiceProjectComponent implements OnInit {
           items.forEach((item) => {
             const pathFile = this.globalStorageService.isWin ? path + '\\' + item : path + '/' + item;
             this.electronService.fs.stat(pathFile, (err, fileStats) => {
-              if (!err) {
+              if (err) {
                 console.error(err);
                 return;
               }
@@ -62,5 +67,9 @@ export class ServiceProjectComponent implements OnInit {
         });
       }
     });
+  }
+
+  public toItem(item: any): ServiceProjectItemInterface {
+    return item as ServiceProjectItemInterface;
   }
 }
