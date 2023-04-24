@@ -5,17 +5,32 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SplitterModule } from 'primeng/splitter';
 import { HeaderComponent } from '../modules/header/header.component';
+import { ServiceSwitchComponent } from '../modules/service/switch/service-switch.component';
+import { PanelEnum } from './enums/panel.enum';
 import { GlobalStorageService } from './services/global.storage.service';
 
 @Component({
   standalone: true,
   selector: 'app-root',
   templateUrl: './app.component.html',
-  imports: [CommonModule, HttpClientModule, FormsModule, ReactiveFormsModule, RouterModule, SplitterModule, HeaderComponent],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    SplitterModule,
+    HeaderComponent,
+    ServiceSwitchComponent
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {
-  public constructor(private readonly globalStorageService: GlobalStorageService) {}
+  public get PanelEnum() {
+    return PanelEnum;
+  }
+
+  public constructor(public readonly globalStorageService: GlobalStorageService) {}
 
   public ngOnInit() {
     this.globalStorageService.loadStorage();

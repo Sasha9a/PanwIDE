@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ServiceTypeEnum } from '../enums/service.type.enum';
 import { GlobalStorageInterface } from '../interfaces/global.storage.interface';
 import { ElectronService } from './electron.service';
 
@@ -8,6 +9,10 @@ import { ElectronService } from './electron.service';
 export class GlobalStorageService {
   private _globalStorageInfo: GlobalStorageInterface;
   private readonly fullPath: string;
+
+  public get globalStorageInfo(): GlobalStorageInterface {
+    return this._globalStorageInfo;
+  }
 
   public constructor(private readonly electronService: ElectronService) {
     const userDataPath = this.electronService.remote.app.getPath('userData');
@@ -33,15 +38,21 @@ export class GlobalStorageService {
           openDirectory: null,
           leftPanel: {
             isShow: true,
-            size: 25
+            size: 25,
+            services: [ServiceTypeEnum.PROJECT],
+            activeService: ServiceTypeEnum.PROJECT
           },
           rightPanel: {
             isShow: false,
-            size: 25
+            size: 25,
+            services: [],
+            activeService: null
           },
           bottomPanel: {
             isShow: false,
-            size: 20
+            size: 20,
+            services: [],
+            activeService: null
           }
         };
       }
