@@ -5,7 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SplitterModule } from 'primeng/splitter';
 import { HeaderComponent } from '../modules/header/header.component';
-import { ServiceSwitchComponent } from '../modules/service/switch/service-switch.component';
+import { ServiceSwitchComponent } from '../modules/service/components/switch/service-switch.component';
 import { PanelEnum } from './enums/panel.enum';
 import { GlobalStorageService } from './services/global.storage.service';
 

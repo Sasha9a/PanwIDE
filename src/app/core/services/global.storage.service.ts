@@ -1,25 +1,31 @@
 import { Injectable } from '@angular/core';
-import { ServiceTypeEnum } from '../enums/service.type.enum';
+import { BehaviorSubject } from 'rxjs';
 import { GlobalStorageInterface } from '../interfaces/global.storage.interface';
+import { globalStorageInitialState } from '../state/global.storage.initial.state';
 import { ElectronService } from './electron.service';
+import { StoreService } from './store.service';
 
 @Injectable({
   providedIn: 'root'
 })
-export class GlobalStorageService {
-  private _globalStorageInfo: GlobalStorageInterface;
+export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
+  protected state = new BehaviorSubject(globalStorageInitialState);
   private readonly fullPath: string;
+  public isWin: boolean;
 
-  public get globalStorageInfo(): GlobalStorageInterface {
-    return this._globalStorageInfo;
+  public get getState() {
+    return this.state.value;
   }
 
   public constructor(private readonly electronService: ElectronService) {
+    super();
     const userDataPath = this.electronService.remote.app.getPath('userData');
     if (userDataPath.includes('\\')) {
       this.fullPath = userDataPath + '\\localStorage.json';
+      this.isWin = true;
     } else {
       this.fullPath = userDataPath + '/localStorage.json';
+      this.isWin = false;
     }
   }
 
@@ -32,34 +38,12 @@ export class GlobalStorageService {
         throw err;
       }
       if (data.toString()) {
-        this._globalStorageInfo = JSON.parse(data.toString());
-      } else {
-        this._globalStorageInfo = {
-          openDirectory: null,
-          leftPanel: {
-            isShow: true,
-            size: 25,
-            services: [ServiceTypeEnum.PROJECT],
-            activeService: ServiceTypeEnum.PROJECT
-          },
-          rightPanel: {
-            isShow: false,
-            size: 25,
-            services: [],
-            activeService: null
-          },
-          bottomPanel: {
-            isShow: false,
-            size: 20,
-            services: [],
-            activeService: null
-          }
-        };
+        this.updateState(JSON.parse(data.toString()));
       }
     });
   }
 
   public updateStorage() {
-    this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this._globalStorageInfo));
+    this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this.getState));
   }
 }
