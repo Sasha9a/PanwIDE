@@ -1,0 +1,27 @@
+<header class="h-4rem bg-black-alpha-70 w-full border-bottom-1 border-black-alpha-90">
+  <div class="flex align-items-center">
+    <div class="flex align-items-center justify-content-center w-4rem h-4rem relative">
+      <img src="assets/icons/favicon.png" class="w-2rem h-2rem" alt="logo" />
+      <div class="absolute w-4rem h-4rem z-1"></div>
+    </div>
+    <div class="flex-grow-1 h-4rem w-full drag-header"></div>
+    <div
+      class="flex align-items-center justify-content-center w-4rem h-4rem cursor-pointer hover:bg-black-alpha-60"
+      (click)="hideProgram()"
+    >
+      <i class="pi pi-minus font-bold text-300"></i>
+    </div>
+    <div
+      class="flex align-items-center justify-content-center w-4rem h-4rem cursor-pointer hover:bg-black-alpha-60"
+      (click)="isMaximized ? setMinimizedProgram() : setFullScreenProgram()"
+    >
+      <i class="pi font-bold text-300" [class.pi-window-maximize]="!isMaximized" [class.pi-window-minimize]="isMaximized"></i>
+    </div>
+    <div
+      class="flex align-items-center justify-content-center w-4rem h-4rem cursor-pointer hover:bg-black-alpha-60"
+      (click)="closeProgram()"
+    >
+      <i class="pi pi-times font-bold text-300"></i>
+    </div>
+  </div>
+</header>
