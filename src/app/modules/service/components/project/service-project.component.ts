@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
+import { log } from 'util';
+import { IpcChannelEnum } from '../../../../core/enums/ipc.channel.enum';
 import { ElectronService } from '../../../../core/services/electron.service';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
 import { ObjectKeysPipe } from '../../../../shared/pipes/object-keys.pipe';
@@ -30,6 +32,8 @@ export class ServiceProjectComponent implements OnInit {
         this.parseFiles(path, this.files);
       }
     });
+
+    this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, [1, 2, 3]).then((r) => console.log(r));
   }
 
   private parseFiles(path: string, info: Record<string, ServiceProjectItemInterface>) {

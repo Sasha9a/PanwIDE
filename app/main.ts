@@ -1,6 +1,7 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
+import { createHandles } from './handles';
 
 require('@electron/remote/main').initialize();
 const mainRemote = require('@electron/remote/main');
@@ -84,6 +85,8 @@ try {
       createWindow();
     }
   });
+
+  createHandles();
 } catch (e) {
   // Catch Error
   // throw e;

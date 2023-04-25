@@ -1,0 +1,3 @@
+export enum IpcChannelEnum {
+  SERVICE_PROJECT_GET_FILES = 'SERVICE_PROJECT_GET_FILES'
+}
