@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen, ipcMain } from 'electron';
+import { app, BrowserWindow, screen } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createHandles } from './handles';
@@ -6,7 +6,7 @@ import { createHandles } from './handles';
 require('@electron/remote/main').initialize();
 const mainRemote = require('@electron/remote/main');
 
-let win: BrowserWindow = null;
+export let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
 

@@ -1,23 +1,27 @@
-<ng-container *ngFor="let fileName of files | objectKeys">
-  <ng-template
-    [ngTemplateOutlet]="fileItem"
-    [ngTemplateOutletContext]="{ item: files[fileName], fileName: fileName, level: 0 }"
-  ></ng-template>
-</ng-container>
-
-<ng-template #fileItem let-item="item" let-fileName="fileName" let-level="level">
-  <ng-container *ngIf="toItem(item) as item">
-    <div [ngStyle]="{ 'margin-left.px': 14 * level }">
-      {{ fileName }}
-    </div>
-
-    <ng-container *ngIf="(item.children | objectKeys)?.length">
-      <ng-container *ngFor="let childFileName of item.children | objectKeys">
-        <ng-template
-          [ngTemplateOutlet]="fileItem"
-          [ngTemplateOutletContext]="{ item: item.children[childFileName], fileName: childFileName, level: level + 1 }"
-        ></ng-template>
-      </ng-container>
+<div class="relative w-full h-full bg-black-alpha-80">
+  <p-scrollPanel class="h-full w-full" styleClass="absolute h-full w-full">
+    <ng-container *ngFor="let fileName of files | objectKeys">
+      <ng-template
+        [ngTemplateOutlet]="fileItem"
+        [ngTemplateOutletContext]="{ item: files[fileName], fileName: fileName, level: 0 }"
+      ></ng-template>
     </ng-container>
-  </ng-container>
-</ng-template>
+
+    <ng-template #fileItem let-item="item" let-fileName="fileName" let-level="level">
+      <ng-container *ngIf="toItem(item) as item">
+        <p [ngStyle]="{ 'margin-left.px': 14 * level }">
+          {{ fileName }}
+        </p>
+
+        <ng-container *ngIf="(item.children | objectKeys)?.length">
+          <ng-container *ngFor="let childFileName of item.children | objectKeys">
+            <ng-template
+              [ngTemplateOutlet]="fileItem"
+              [ngTemplateOutletContext]="{ item: item.children[childFileName], fileName: childFileName, level: level + 1 }"
+            ></ng-template>
+          </ng-container>
+        </ng-container>
+      </ng-container>
+    </ng-template>
+  </p-scrollPanel>
+</div>

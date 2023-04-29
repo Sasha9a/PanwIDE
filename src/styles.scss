@@ -1,7 +1,8 @@
-@import "primeng/resources/themes/nano/theme.css";
+@import "fonts";
 @import "primeng/resources/primeng.css";
 @import 'primeflex/primeflex.scss';
 @import "primeicons/primeicons.css";
+@import "primeng/resources/themes/nano/theme.css";
 @import "@fortawesome/fontawesome-free/css/fontawesome.css";
 @import "@fortawesome/fontawesome-free/css/all.css";
 
@@ -13,13 +14,28 @@ body {
   padding: 0;
   margin: 0;
   color: #212121;
-  font-family: "Avenir Next Cyr", "Helvetica Neue", sans-serif !important;
-  font-size: 14px;
+  font-family: 'JetBrains Mono', sans-serif !important;
+  font-size: 12px !important;
   font-style: normal;
   font-weight: 500;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+p {
+  color: white;
+  font-size: 12px;
+  font-weight: 300;
+  margin: 0;
+  padding: 0;
+}
+
+.p-component {
+  font-family: "JetBrains Mono", sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
 
 .drag-header {
   -webkit-app-region: drag;
@@ -31,4 +47,13 @@ img {
   -webkit-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+.p-splitter {
+  border: 0;
+  border-radius: 0;
+}
+
+.p-scrollpanel-bar {
+  background-color: #6c6c6c !important;
 }

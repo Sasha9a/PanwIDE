@@ -4,28 +4,32 @@
   <div class="w-4rem h-full bg-black-alpha-80"></div>
 
   <div class="flex-grow-1">
-    <p-splitter styleClass="w-full h-full" layout="vertical">
-      <ng-template pTemplate="">
-        <p-splitter styleClass="w-full h-full">
-          <ng-template pTemplate="">
-            <app-service-switch [panelType]="PanelEnum.LEFT"></app-service-switch>
-          </ng-template>
-          <ng-template pTemplate="">
-            <p-splitter styleClass="w-full h-full">
-              <ng-template pTemplate="">
-                <div class="col flex align-items-center justify-content-center">Panel 2</div>
-              </ng-template>
-              <ng-template pTemplate="">
-                <app-service-switch [panelType]="PanelEnum.RIGHT"></app-service-switch>
-              </ng-template>
-            </p-splitter>
-          </ng-template>
-        </p-splitter>
-      </ng-template>
-      <ng-template pTemplate="">
-        <app-service-switch [panelType]="PanelEnum.BOTTOM"></app-service-switch>
-      </ng-template>
-    </p-splitter>
+    <div class="w-full h-full">
+      <p-splitter styleClass="h-full" layout="vertical">
+        <ng-template pTemplate="">
+          <p-splitter>
+            <ng-template pTemplate="">
+              <div class="flex-grow-1">
+                <app-service-switch [panelType]="PanelEnum.LEFT"></app-service-switch>
+              </div>
+            </ng-template>
+            <ng-template pTemplate="">
+              <p-splitter>
+                <ng-template pTemplate="">
+                  <div class="col flex align-items-center justify-content-center">Panel 2</div>
+                </ng-template>
+                <ng-template pTemplate="">
+                  <app-service-switch [panelType]="PanelEnum.RIGHT"></app-service-switch>
+                </ng-template>
+              </p-splitter>
+            </ng-template>
+          </p-splitter>
+        </ng-template>
+        <ng-template pTemplate="">
+          <app-service-switch [panelType]="PanelEnum.BOTTOM"></app-service-switch>
+        </ng-template>
+      </p-splitter>
+    </div>
   </div>
 
   <div class="w-4rem h-full bg-black-alpha-80"></div>
