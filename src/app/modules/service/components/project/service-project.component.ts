@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Observable } from 'rxjs';
@@ -6,13 +6,14 @@ import { ServiceProjectItemInterface } from '../../../../../../libs/interfaces/s
 import { IpcChannelEnum } from '../../../../core/enums/ipc.channel.enum';
 import { ElectronService } from '../../../../core/services/electron.service';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
+import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
 import { ObjectKeysPipe } from '../../../../shared/pipes/object-keys.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-service-project',
   templateUrl: './service-project.component.html',
-  imports: [CommonModule, ObjectKeysPipe, ScrollPanelModule],
+  imports: [CommonModule, ObjectKeysPipe, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServiceProjectComponent implements OnInit {

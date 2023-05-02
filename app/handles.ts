@@ -23,6 +23,7 @@ const parseFiles = async (path: string, info: Record<string, ServiceProjectItemI
   if (pathStat) {
     const dirName = path.slice(path.lastIndexOf(isWin ? '\\' : '/') + 1);
     info[dirName] = {
+      name: dirName,
       fullPath: path,
       fileType: dirName.lastIndexOf('.') !== -1 ? dirName.slice(dirName.lastIndexOf('.') + 1) : '',
       children: {},

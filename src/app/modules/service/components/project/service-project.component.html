@@ -10,6 +10,7 @@
     <ng-template #fileItem let-item="item" let-fileName="fileName" let-level="level">
       <ng-container *ngIf="toItem(item) as item">
         <div class="flex align-items-center gap-2 py-1" [ngStyle]="{ 'margin-left.px': 14 * level }">
+          <img [ngSrc]="item | fileTypeImagePath" width="20" height="20" />
           <p class="select-none">
             {{ fileName }}
           </p>
