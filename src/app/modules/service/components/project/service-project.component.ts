@@ -2,23 +2,25 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Observable } from 'rxjs';
+import { IpcChannelEnum } from '../../../../../../libs/enums/ipc.channel.enum';
 import { ServiceProjectItemInterface } from '../../../../../../libs/interfaces/service.project.item.interface';
-import { IpcChannelEnum } from '../../../../core/enums/ipc.channel.enum';
 import { ElectronService } from '../../../../core/services/electron.service';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
-import { ObjectKeysPipe } from '../../../../shared/pipes/object-keys.pipe';
+import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 
 @Component({
   standalone: true,
   selector: 'app-service-project',
   templateUrl: './service-project.component.html',
-  imports: [CommonModule, ObjectKeysPipe, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe],
+  imports: [CommonModule, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe, OrderByPipe],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServiceProjectComponent implements OnInit {
   public openDirectory$: Observable<string>;
-  public files: Record<string, ServiceProjectItemInterface> = {};
+  public files: ServiceProjectItemInterface[];
+  public openedDirectory: string[] = [];
+  public selectedItem: ServiceProjectItemInterface;
 
   public constructor(
     public readonly globalStorageService: GlobalStorageService,
@@ -42,5 +44,19 @@ export class ServiceProjectComponent implements OnInit {
 
   public toItem(item: any): ServiceProjectItemInterface {
     return item as ServiceProjectItemInterface;
+  }
+
+  public toggleOpenedDirectory(fullPath: string) {
+    if (this.openedDirectory.includes(fullPath)) {
+      this.openedDirectory = this.openedDirectory.filter((path) => path !== fullPath);
+    } else {
+      this.openedDirectory.push(fullPath);
+    }
+    this.cdRef.detectChanges();
+  }
+
+  public setSelectedItem(item: ServiceProjectItemInterface) {
+    this.selectedItem = item;
+    this.cdRef.detectChanges();
   }
 }

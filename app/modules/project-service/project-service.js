@@ -13,13 +13,13 @@ exports.createHandles = void 0;
 const chokidar = require("chokidar");
 const electron_1 = require("electron");
 const fs = require("fs");
-const ipc_channel_enum_1 = require("../src/app/core/enums/ipc.channel.enum");
-const main_1 = require("./main");
+const ipc_channel_enum_1 = require("../../../libs/enums/ipc.channel.enum");
+const main_1 = require("../../main");
 const createHandles = () => {
     electron_1.ipcMain.handle(ipc_channel_enum_1.IpcChannelEnum.SERVICE_PROJECT_START_LOAD_FILES, (event, path) => {
         const watcher = chokidar.watch(path);
         watcher.on('ready', () => __awaiter(void 0, void 0, void 0, function* () {
-            const info = {};
+            const info = [];
             yield parseFiles(path, info);
             main_1.win.webContents.send(ipc_channel_enum_1.IpcChannelEnum.SERVICE_PROJECT_GET_FILES, info);
         }));
@@ -31,17 +31,19 @@ const parseFiles = (path, info) => __awaiter(void 0, void 0, void 0, function* (
     const isWin = path.includes('\\');
     if (pathStat) {
         const dirName = path.slice(path.lastIndexOf(isWin ? '\\' : '/') + 1);
-        info[dirName] = {
+        const objectInfo = {
+            name: dirName,
             fullPath: path,
             fileType: dirName.lastIndexOf('.') !== -1 ? dirName.slice(dirName.lastIndexOf('.') + 1) : '',
-            children: {},
+            children: [],
             isDirectory: pathStat.isDirectory()
         };
+        info.push(objectInfo);
         if (pathStat.isDirectory()) {
             const items = fs.readdirSync(path);
             for (let item of items) {
                 const pathFile = isWin ? path + '\\' + item : path + '/' + item;
-                yield parseFiles(pathFile, info[dirName].children);
+                yield parseFiles(pathFile, objectInfo.children);
             }
         }
     }
@@ -49,4 +51,4 @@ const parseFiles = (path, info) => __awaiter(void 0, void 0, void 0, function* (
         console.error(`Error: Не получилось прочитать файл по пути: ${path}`);
     }
 });
-//# sourceMappingURL=handles.js.map
+//# sourceMappingURL=project-service.js.map
