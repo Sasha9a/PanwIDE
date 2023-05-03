@@ -1,0 +1,27 @@
+<div class="w-4rem h-full bg-black-alpha-80 border-right-1 border-black-alpha-90">
+  <div style="height: 50%" class="relative">
+    <div *ngFor="let service of (leftPanel$ | async)?.services" class="p-2">
+      <app-button-service [serviceType]="service"></app-button-service>
+    </div>
+
+    <!--    <div-->
+    <!--      *ngIf="dragService$ | async"-->
+    <!--      class="absolute top-0 left-0 w-full h-full drop-service"-->
+    <!--      pDroppable="services"-->
+    <!--      (onDrop)="dropService(PanelEnum.LEFT)"-->
+    <!--    ></div>-->
+  </div>
+
+  <div style="height: 50%" class="relative">
+    <div *ngFor="let service of (bottomPanel$ | async)?.services" class="p-2">
+      <app-button-service [serviceType]="service"></app-button-service>
+    </div>
+
+    <div
+      *ngIf="dragService$ | async"
+      class="absolute top-0 left-0 w-full h-full drop-service"
+      pDroppable="services"
+      (onDrop)="dropService(PanelEnum.BOTTOM)"
+    ></div>
+  </div>
+</div>

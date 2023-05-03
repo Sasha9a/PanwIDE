@@ -1,0 +1,10 @@
+<div
+  class="w-full h-full hover:bg-gray-600 border-round-lg flex align-items-center justify-content-center"
+  pDraggable="services"
+  (onDragStart)="dragStart()"
+  (onDragEnd)="dragEnd()"
+  [pTooltip]="serviceInfo[serviceType]?.tooltip"
+  [escape]="false"
+>
+  <img [src]="serviceInfo[serviceType]?.src" class="w-full p-2" alt="service" />
+</div>

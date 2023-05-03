@@ -57,3 +57,9 @@ img {
 .p-scrollpanel-bar {
   background-color: #6c6c6c !important;
 }
+
+.drop-service {
+  &.p-draggable-enter {
+    background-color: rgba(43, 98, 220, 0.6) !important;
+  }
+}
