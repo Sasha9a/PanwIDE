@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ApplicationRef, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ServiceTypeEnum } from '../enums/service.type.enum';
 import { StoreService } from './store.service';
@@ -11,6 +11,10 @@ export class GlobalDragButtonService extends StoreService<{ serviceType: Service
 
   public get getState() {
     return this.state.value;
+  }
+
+  public constructor(protected readonly appRef: ApplicationRef) {
+    super(appRef);
   }
 
   public setState(serviceType: ServiceTypeEnum | null) {

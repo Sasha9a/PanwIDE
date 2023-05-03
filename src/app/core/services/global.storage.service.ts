@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { ApplicationRef, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { PanelEnum } from '../enums/panel.enum';
 import { ServiceTypeEnum } from '../enums/service.type.enum';
@@ -19,8 +19,8 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
     return this.state.value;
   }
 
-  public constructor(private readonly electronService: ElectronService) {
-    super();
+  public constructor(private readonly electronService: ElectronService, protected readonly appRef: ApplicationRef) {
+    super(appRef);
     const userDataPath = this.electronService.remote.app.getPath('userData');
     if (userDataPath.includes('\\')) {
       this.fullPath = userDataPath + '\\localStorage.json';
@@ -79,6 +79,7 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
     this.updateState({
       [newKey]: { ...newData }
     });
+    this.updateStorage();
   }
 
   public getPanelFromService(serviceType: ServiceTypeEnum) {

@@ -31,7 +31,7 @@ export class ServiceSwitchComponent implements OnInit {
         this.panelInfo$ = this.globalStorageService.select((state) => state.leftPanel);
         this.panelInfo$.subscribe((panelInfo) => {
           this.activeService = panelInfo.activeService;
-          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
         });
         break;
       }
@@ -39,7 +39,7 @@ export class ServiceSwitchComponent implements OnInit {
         this.panelInfo$ = this.globalStorageService.select((state) => state.rightPanel);
         this.panelInfo$.subscribe((panelInfo) => {
           this.activeService = panelInfo.activeService;
-          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
         });
         break;
       }
@@ -47,7 +47,7 @@ export class ServiceSwitchComponent implements OnInit {
         this.panelInfo$ = this.globalStorageService.select((state) => state.bottomPanel);
         this.panelInfo$.subscribe((panelInfo) => {
           this.activeService = panelInfo.activeService;
-          this.cdRef.markForCheck();
+          this.cdRef.detectChanges();
         });
         break;
       }
