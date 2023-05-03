@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { SplitterModule } from 'primeng/splitter';
 import { HeaderComponent } from '../modules/header/header.component';
 import { LeftPanelComponent } from '../modules/left-panel/left-panel.component';
+import { RightPanelComponent } from '../modules/right-panel/right-panel.component';
 import { ServiceSwitchComponent } from '../modules/service/components/switch/service-switch.component';
 import { PanelEnum } from './enums/panel.enum';
 import { GlobalStorageService } from './services/global.storage.service';
@@ -23,7 +24,8 @@ import { GlobalStorageService } from './services/global.storage.service';
     SplitterModule,
     HeaderComponent,
     ServiceSwitchComponent,
-    LeftPanelComponent
+    LeftPanelComponent,
+    RightPanelComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })

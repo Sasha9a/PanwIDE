@@ -1,0 +1,23 @@
+<div class="w-4rem h-full bg-black-alpha-80 border-left-1 border-black-alpha-90">
+  <div class="p-2">
+    <ng-container *ngFor="let service of (rightPanel$ | async)?.services; let index = index">
+      <ng-container *ngIf="index === 0 && service !== (dragService$ | async) && dragService$ | async">
+        <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.RIGHT }"></ng-template>
+      </ng-container>
+
+      <app-button-service [serviceType]="service"></app-button-service>
+
+      <ng-container *ngIf="index !== 0 && service !== (dragService$ | async) && dragService$ | async">
+        <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.RIGHT }"></ng-template>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="!(rightPanel$ | async)?.services?.length && dragService$ | async">
+      <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.RIGHT }"></ng-template>
+    </ng-container>
+  </div>
+</div>
+
+<ng-template #droppedZone let-panel="panel">
+  <div class="w-full h-3rem droppable-service-zone" pDroppable="services" (onDrop)="dropService(panel)"></div>
+</ng-template>
