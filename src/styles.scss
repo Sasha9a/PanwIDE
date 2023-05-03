@@ -58,8 +58,7 @@ img {
   background-color: #6c6c6c !important;
 }
 
-.drop-service {
-  &.p-draggable-enter {
-    background-color: rgba(43, 98, 220, 0.6) !important;
-  }
+.droppable-service-zone {
+  background-color: rgba(0, 127, 208, 0.4);
+  border: 2px dashed rgb(51, 174, 255);
 }

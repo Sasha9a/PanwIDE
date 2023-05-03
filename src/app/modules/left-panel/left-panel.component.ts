@@ -39,6 +39,7 @@ export class LeftPanelComponent implements OnInit {
   public dropService(panel: PanelEnum) {
     if (this.globalDragButtonService.getState?.serviceType) {
       this.globalStorageService.changeService(panel, this.globalDragButtonService.getState?.serviceType);
+      this.globalDragButtonService.setState(null);
     }
   }
 }

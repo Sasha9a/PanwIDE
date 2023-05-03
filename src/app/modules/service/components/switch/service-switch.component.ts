@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
 import { PanelEnum } from '../../../../core/enums/panel.enum';
 import { ServiceTypeEnum } from '../../../../core/enums/service.type.enum';
+import { GlobalPanelInterface } from '../../../../core/interfaces/global.storage.interface';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
 import { ServiceProjectComponent } from '../project/service-project.component';
 
@@ -15,25 +17,38 @@ import { ServiceProjectComponent } from '../project/service-project.component';
 export class ServiceSwitchComponent implements OnInit {
   @Input() public panelType: PanelEnum;
   public activeService: ServiceTypeEnum;
+  public panelInfo$: Observable<GlobalPanelInterface>;
 
   public get ServiceTypeEnum() {
     return ServiceTypeEnum;
   }
 
-  public constructor(public readonly globalStorageService: GlobalStorageService) {}
+  public constructor(public readonly globalStorageService: GlobalStorageService, private readonly cdRef: ChangeDetectorRef) {}
 
   public ngOnInit() {
     switch (this.panelType) {
       case PanelEnum.LEFT: {
-        this.activeService = this.globalStorageService.getState?.leftPanel?.activeService;
+        this.panelInfo$ = this.globalStorageService.select((state) => state.leftPanel);
+        this.panelInfo$.subscribe((panelInfo) => {
+          this.activeService = panelInfo.activeService;
+          this.cdRef.markForCheck();
+        });
         break;
       }
       case PanelEnum.RIGHT: {
-        this.activeService = this.globalStorageService.getState?.rightPanel?.activeService;
+        this.panelInfo$ = this.globalStorageService.select((state) => state.rightPanel);
+        this.panelInfo$.subscribe((panelInfo) => {
+          this.activeService = panelInfo.activeService;
+          this.cdRef.markForCheck();
+        });
         break;
       }
       case PanelEnum.BOTTOM: {
-        this.activeService = this.globalStorageService.getState?.bottomPanel?.activeService;
+        this.panelInfo$ = this.globalStorageService.select((state) => state.bottomPanel);
+        this.panelInfo$.subscribe((panelInfo) => {
+          this.activeService = panelInfo.activeService;
+          this.cdRef.markForCheck();
+        });
         break;
       }
     }

@@ -19,14 +19,18 @@
                   <div class="col flex align-items-center justify-content-center">Panel 2</div>
                 </ng-template>
                 <ng-template pTemplate="">
-                  <app-service-switch [panelType]="PanelEnum.RIGHT"></app-service-switch>
+                  <div class="flex-grow-1">
+                    <app-service-switch [panelType]="PanelEnum.RIGHT"></app-service-switch>
+                  </div>
                 </ng-template>
               </p-splitter>
             </ng-template>
           </p-splitter>
         </ng-template>
         <ng-template pTemplate="">
-          <app-service-switch [panelType]="PanelEnum.BOTTOM"></app-service-switch>
+          <div class="flex-grow-1">
+            <app-service-switch [panelType]="PanelEnum.BOTTOM"></app-service-switch>
+          </div>
         </ng-template>
       </p-splitter>
     </div>

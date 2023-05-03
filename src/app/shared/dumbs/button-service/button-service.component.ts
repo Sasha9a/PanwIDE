@@ -25,12 +25,10 @@ export class ButtonServiceComponent {
   public constructor(private readonly globalDragButtonService: GlobalDragButtonService) {}
 
   public dragStart() {
-    console.log('START');
     this.globalDragButtonService.setState(this.serviceType);
   }
 
   public dragEnd() {
-    console.log('END');
     this.globalDragButtonService.setState(null);
   }
 }
