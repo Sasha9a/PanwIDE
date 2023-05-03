@@ -34,9 +34,9 @@ export class RightPanelComponent implements OnInit {
     this.dragService$ = this.globalDragButtonService.select((state) => state.serviceType);
   }
 
-  public dropService(panel: PanelEnum) {
+  public dropService(panel: PanelEnum, index: number) {
     if (this.globalDragButtonService.getState?.serviceType) {
-      this.globalStorageService.changeService(panel, this.globalDragButtonService.getState?.serviceType);
+      this.globalStorageService.changeService(panel, this.globalDragButtonService.getState?.serviceType, index);
       this.globalDragButtonService.setState(null);
     }
   }
