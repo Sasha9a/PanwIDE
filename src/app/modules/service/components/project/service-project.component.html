@@ -1,7 +1,7 @@
 <div class="relative w-full h-full bg-black-alpha-80">
   <p-scrollPanel class="h-full w-full" styleClass="absolute h-full w-full">
     <div class="my-1">
-      <ng-container *ngFor="let file of files | orderBy : 'name:string' | orderBy : '-isDirectory:number'">
+      <ng-container *ngFor="let file of files$ | async | orderBy : 'name:string' | orderBy : '-isDirectory:number'">
         <ng-template [ngTemplateOutlet]="fileItem" [ngTemplateOutletContext]="{ item: file, level: 0 }"></ng-template>
       </ng-container>
     </div>
@@ -9,14 +9,14 @@
     <ng-template #fileItem let-item="item" let-level="level">
       <ng-container *ngIf="toItem(item) as item">
         <div (click)="setSelectedItem(item)">
-          <div class="mx-3 border-round-md" [class.surface-600]="selectedItem?.fullPath === item.fullPath">
+          <div class="mx-3 border-round-md" [class.surface-600]="(selectedItem$ | async)?.fullPath === item.fullPath">
             <div class="flex align-items-center gap-1 py-1" [ngStyle]="{ 'margin-left.px': 14 * level }">
               <div>
                 <i
                   *ngIf="item.isDirectory; else notDirectory"
                   class="pi text-gray-50 font-bold"
-                  [class.pi-angle-down]="openedDirectory.includes(item.fullPath)"
-                  [class.pi-angle-right]="!openedDirectory.includes(item.fullPath)"
+                  [class.pi-angle-down]="(openedDirectory$ | async).includes(item.fullPath)"
+                  [class.pi-angle-right]="!(openedDirectory$ | async).includes(item.fullPath)"
                   (click)="toggleOpenedDirectory(item.fullPath); $event.stopPropagation()"
                 ></i>
                 <ng-template #notDirectory>
@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <ng-container *ngIf="item.children?.length && openedDirectory.includes(item.fullPath)">
+        <ng-container *ngIf="item.children?.length && (openedDirectory$ | async).includes(item.fullPath)">
           <ng-container *ngFor="let childFile of item.children | orderBy : 'name:string' | orderBy : '-isDirectory:number'">
             <ng-template [ngTemplateOutlet]="fileItem" [ngTemplateOutletContext]="{ item: childFile, level: level + 1 }"></ng-template>
           </ng-container>

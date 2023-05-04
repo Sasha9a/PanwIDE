@@ -1,11 +1,12 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Observable } from 'rxjs';
 import { IpcChannelEnum } from '../../../../../../libs/enums/ipc.channel.enum';
 import { ServiceProjectItemInterface } from '../../../../../../libs/interfaces/service.project.item.interface';
 import { ElectronService } from '../../../../core/services/electron.service';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
+import { ServiceProjectService } from '../../../../core/services/service/service-project.service';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 
@@ -18,14 +19,14 @@ import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 })
 export class ServiceProjectComponent implements OnInit {
   public openDirectory$: Observable<string>;
-  public files: ServiceProjectItemInterface[];
-  public openedDirectory: string[] = [];
-  public selectedItem: ServiceProjectItemInterface;
+  public files$: Observable<ServiceProjectItemInterface[]>;
+  public openedDirectory$: Observable<string[]>;
+  public selectedItem$: Observable<ServiceProjectItemInterface>;
 
   public constructor(
     public readonly globalStorageService: GlobalStorageService,
     private readonly electronService: ElectronService,
-    private readonly cdRef: ChangeDetectorRef
+    private readonly serviceProjectService: ServiceProjectService
   ) {}
 
   public ngOnInit() {
@@ -36,9 +37,12 @@ export class ServiceProjectComponent implements OnInit {
       }
     });
 
+    this.files$ = this.serviceProjectService.select((state) => state.files);
+    this.openedDirectory$ = this.serviceProjectService.select((state) => state.openedDirectory);
+    this.selectedItem$ = this.serviceProjectService.select((state) => state.selectedItem);
+
     this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, (event, files) => {
-      this.files = files;
-      this.cdRef.detectChanges();
+      this.serviceProjectService.setFiles(files);
     });
   }
 
@@ -47,16 +51,16 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public toggleOpenedDirectory(fullPath: string) {
-    if (this.openedDirectory.includes(fullPath)) {
-      this.openedDirectory = this.openedDirectory.filter((path) => path !== fullPath);
+    let openedDirectory = this.serviceProjectService.getState.openedDirectory;
+    if (openedDirectory.includes(fullPath)) {
+      openedDirectory = openedDirectory.filter((path) => path !== fullPath);
     } else {
-      this.openedDirectory.push(fullPath);
+      openedDirectory.push(fullPath);
     }
-    this.cdRef.detectChanges();
+    this.serviceProjectService.setOpenedDirectory(openedDirectory);
   }
 
   public setSelectedItem(item: ServiceProjectItemInterface) {
-    this.selectedItem = item;
-    this.cdRef.detectChanges();
+    this.serviceProjectService.setSelectedItem(item);
   }
 }
