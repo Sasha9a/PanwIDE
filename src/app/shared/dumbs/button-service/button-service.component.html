@@ -1,6 +1,7 @@
 <div
   class="w-full h-full hover:bg-gray-600 border-round-lg flex align-items-center justify-content-center"
   pDraggable="services"
+  [class.bg-gray-500]="(panelInfo$ | async)?.activeService === serviceType"
   (onDragStart)="dragStart()"
   (onDragEnd)="dragEnd()"
   [pTooltip]="serviceInfo[serviceType]?.tooltip"

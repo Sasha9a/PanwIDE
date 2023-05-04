@@ -6,7 +6,7 @@
           <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.LEFT, index: index }"></ng-template>
         </ng-container>
 
-        <app-button-service [serviceType]="service"></app-button-service>
+        <app-button-service [serviceType]="service" [panelType]="PanelEnum.LEFT"></app-button-service>
 
         <ng-container *ngIf="index !== 0 && service !== (dragService$ | async) && dragService$ | async">
           <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.LEFT, index: index }"></ng-template>
@@ -30,7 +30,7 @@
             ></ng-template>
           </ng-container>
 
-          <app-button-service [serviceType]="service"></app-button-service>
+          <app-button-service [serviceType]="service" [panelType]="PanelEnum.BOTTOM"></app-button-service>
 
           <ng-container *ngIf="index !== 0 && service !== (dragService$ | async) && dragService$ | async">
             <ng-template
