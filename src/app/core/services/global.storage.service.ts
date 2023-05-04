@@ -49,6 +49,11 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
     this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this.getState));
   }
 
+  public resizePanel(sizes: [number, number], panel: PanelEnum) {
+    if (panel === PanelEnum.LEFT) {
+    }
+  }
+
   public toggleService(serviceType: ServiceTypeEnum) {
     const panel = this.getPanelFromService(serviceType);
     const panelKey = this.convertPanelTypeToKey(panel);

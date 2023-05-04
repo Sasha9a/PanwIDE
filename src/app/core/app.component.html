@@ -31,6 +31,7 @@
       styleClass="h-full"
       layout="vertical"
       [panelSizes]="[100 - ((bottomPanel$ | async)?.size || 0), (bottomPanel$ | async)?.size || 0]"
+      (onResizeEnd)="onResizeEndPanel($event, PanelEnum.BOTTOM)"
     >
       <ng-template pTemplate="">
         <ng-container *ngIf="(leftPanel$ | async)?.isShow; else leftPanelHide">
@@ -53,7 +54,11 @@
   </ng-template>
 
   <ng-template #leftPanelActive>
-    <p-splitter styleClass="h-full" [panelSizes]="[(leftPanel$ | async)?.size || 0, 100 - ((leftPanel$ | async)?.size || 0)]">
+    <p-splitter
+      styleClass="h-full"
+      [panelSizes]="[(leftPanel$ | async)?.size || 0, 100 - ((leftPanel$ | async)?.size || 0)]"
+      (onResizeEnd)="onResizeEndPanel($event, PanelEnum.LEFT)"
+    >
       <ng-template pTemplate="">
         <ng-template [ngTemplateOutlet]="servicePanel" [ngTemplateOutletContext]="{ panel: PanelEnum.LEFT }"></ng-template>
       </ng-template>
@@ -69,7 +74,11 @@
   </ng-template>
 
   <ng-template #rightPanelActive>
-    <p-splitter styleClass="h-full" [panelSizes]="[100 - ((rightPanel$ | async)?.size || 0), (rightPanel$ | async)?.size || 0]">
+    <p-splitter
+      styleClass="h-full"
+      [panelSizes]="[100 - ((rightPanel$ | async)?.size || 0), (rightPanel$ | async)?.size || 0]"
+      (onResizeEnd)="onResizeEndPanel($event, PanelEnum.RIGHT)"
+    >
       <ng-template pTemplate="">
         <div class="col flex align-items-center justify-content-center h-full">Panel 2</div>
       </ng-template>

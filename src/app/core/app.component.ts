@@ -49,4 +49,8 @@ export class AppComponent implements OnInit {
 
     this.globalStorageService.loadStorage();
   }
+
+  public onResizeEndPanel(event: { originalEvent: MouseEvent; sizes: [number, number] }, panel: PanelEnum) {
+    this.globalStorageService.resizePanel(event.sizes, panel);
+  }
 }
