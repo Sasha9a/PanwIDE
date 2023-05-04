@@ -6,6 +6,7 @@
   (onDragEnd)="dragEnd()"
   [pTooltip]="serviceInfo[serviceType]?.tooltip"
   [escape]="false"
+  (click)="clickButton()"
 >
   <img [src]="serviceInfo[serviceType]?.src" class="w-full p-2" alt="service" />
 </div>

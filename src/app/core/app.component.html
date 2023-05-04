@@ -5,36 +5,85 @@
 
   <div class="flex-grow-1">
     <div class="w-full h-full">
-      <p-splitter styleClass="h-full" layout="vertical">
-        <ng-template pTemplate="">
-          <p-splitter>
-            <ng-template pTemplate="">
-              <div class="flex-grow-1">
-                <app-service-switch [panelType]="PanelEnum.LEFT"></app-service-switch>
-              </div>
-            </ng-template>
-            <ng-template pTemplate="">
-              <p-splitter>
-                <ng-template pTemplate="">
-                  <div class="col flex align-items-center justify-content-center">Panel 2</div>
-                </ng-template>
-                <ng-template pTemplate="">
-                  <div class="flex-grow-1">
-                    <app-service-switch [panelType]="PanelEnum.RIGHT"></app-service-switch>
-                  </div>
-                </ng-template>
-              </p-splitter>
-            </ng-template>
-          </p-splitter>
+      <ng-container *ngIf="(bottomPanel$ | async)?.isShow; else bottomPanelHide">
+        <ng-template [ngTemplateOutlet]="bottomPanelActive"></ng-template>
+      </ng-container>
+
+      <ng-template #bottomPanelHide>
+        <ng-container *ngIf="(leftPanel$ | async)?.isShow; else leftPanelHide">
+          <ng-template [ngTemplateOutlet]="leftPanelActive"></ng-template>
+        </ng-container>
+
+        <ng-template #leftPanelHide>
+          <ng-container *ngIf="(rightPanel$ | async)?.isShow; else rightPanelHide">
+            <ng-template [ngTemplateOutlet]="rightPanelActive"></ng-template>
+          </ng-container>
+          <ng-template #rightPanelHide>
+            <div class="col flex align-items-center justify-content-center h-full">Panel 2</div>
+          </ng-template>
         </ng-template>
-        <ng-template pTemplate="">
-          <div class="flex-grow-1">
-            <app-service-switch [panelType]="PanelEnum.BOTTOM"></app-service-switch>
-          </div>
-        </ng-template>
-      </p-splitter>
+      </ng-template>
     </div>
   </div>
+
+  <ng-template #bottomPanelActive>
+    <p-splitter
+      styleClass="h-full"
+      layout="vertical"
+      [panelSizes]="[100 - ((bottomPanel$ | async)?.size || 0), (bottomPanel$ | async)?.size || 0]"
+    >
+      <ng-template pTemplate="">
+        <ng-container *ngIf="(leftPanel$ | async)?.isShow; else leftPanelHide">
+          <ng-template [ngTemplateOutlet]="leftPanelActive"></ng-template>
+        </ng-container>
+
+        <ng-template #leftPanelHide>
+          <ng-container *ngIf="(rightPanel$ | async)?.isShow; else rightPanelHide">
+            <ng-template [ngTemplateOutlet]="rightPanelActive"></ng-template>
+          </ng-container>
+          <ng-template #rightPanelHide>
+            <div class="col flex align-items-center justify-content-center h-full">Panel 2</div>
+          </ng-template>
+        </ng-template>
+      </ng-template>
+      <ng-template pTemplate="">
+        <ng-template [ngTemplateOutlet]="servicePanel" [ngTemplateOutletContext]="{ panel: PanelEnum.BOTTOM }"></ng-template>
+      </ng-template>
+    </p-splitter>
+  </ng-template>
+
+  <ng-template #leftPanelActive>
+    <p-splitter styleClass="h-full" [panelSizes]="[(leftPanel$ | async)?.size || 0, 100 - ((leftPanel$ | async)?.size || 0)]">
+      <ng-template pTemplate="">
+        <ng-template [ngTemplateOutlet]="servicePanel" [ngTemplateOutletContext]="{ panel: PanelEnum.LEFT }"></ng-template>
+      </ng-template>
+      <ng-template pTemplate="">
+        <ng-container *ngIf="(rightPanel$ | async)?.isShow; else rightPanelHide">
+          <ng-template [ngTemplateOutlet]="rightPanelActive"></ng-template>
+        </ng-container>
+        <ng-template #rightPanelHide>
+          <div class="col flex align-items-center justify-content-center h-full">Panel 2</div>
+        </ng-template>
+      </ng-template>
+    </p-splitter>
+  </ng-template>
+
+  <ng-template #rightPanelActive>
+    <p-splitter styleClass="h-full" [panelSizes]="[100 - ((rightPanel$ | async)?.size || 0), (rightPanel$ | async)?.size || 0]">
+      <ng-template pTemplate="">
+        <div class="col flex align-items-center justify-content-center h-full">Panel 2</div>
+      </ng-template>
+      <ng-template pTemplate="">
+        <ng-template [ngTemplateOutlet]="servicePanel" [ngTemplateOutletContext]="{ panel: PanelEnum.RIGHT }"></ng-template>
+      </ng-template>
+    </p-splitter>
+  </ng-template>
+
+  <ng-template #servicePanel let-panel="panel">
+    <div class="flex-grow-1">
+      <app-service-switch [panelType]="panel"></app-service-switch>
+    </div>
+  </ng-template>
 
   <app-right-panel></app-right-panel>
 </div>

@@ -49,6 +49,24 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
     this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this.getState));
   }
 
+  public toggleService(serviceType: ServiceTypeEnum) {
+    const panel = this.getPanelFromService(serviceType);
+    const panelKey = this.convertPanelTypeToKey(panel);
+    const panelInfo = this.getState[panelKey];
+
+    if (panelInfo?.activeService === serviceType) {
+      panelInfo.activeService = null;
+      panelInfo.isShow = false;
+    } else {
+      panelInfo.activeService = serviceType;
+      panelInfo.isShow = true;
+    }
+    this.updateState({
+      [panelKey]: { ...panelInfo }
+    });
+    this.updateStorage();
+  }
+
   public changeService(newPanel: PanelEnum, serviceType: ServiceTypeEnum, index: number) {
     const oldPanel = this.getPanelFromService(serviceType);
     let isActiveService = false;
@@ -63,6 +81,7 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
       oldData.services = oldData.services.filter((serv) => serv !== serviceType);
       if (oldData.activeService === serviceType) {
         oldData.activeService = null;
+        oldData.isShow = false;
         isActiveService = true;
       }
       this.updateState({
@@ -75,6 +94,7 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
     newData.services.splice(index, 0, serviceType);
     if (isActiveService) {
       newData.activeService = serviceType;
+      newData.isShow = true;
     }
     this.updateState({
       [newKey]: { ...newData }

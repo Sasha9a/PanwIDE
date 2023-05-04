@@ -46,4 +46,8 @@ export class ButtonServiceComponent implements OnInit {
   public dragEnd() {
     this.globalDragButtonService.setState(null);
   }
+
+  public clickButton() {
+    this.globalStorageService.toggleService(this.serviceType);
+  }
 }
