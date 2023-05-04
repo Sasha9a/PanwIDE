@@ -25,7 +25,7 @@ export class ButtonServiceComponent implements OnInit {
   public readonly serviceInfo: Record<ServiceTypeEnum, { src: string; tooltip: string }> = {
     [ServiceTypeEnum.PROJECT]: {
       src: 'assets/icons/service/project.png',
-      tooltip: '<p>Проект</p>'
+      tooltip: '<p class="font-medium">Проект</p>'
     }
   };
 
