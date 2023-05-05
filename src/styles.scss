@@ -121,3 +121,15 @@ img {
   border-top: 1px solid var(--gray-500) !important;
   margin: 0.25rem 0 !important;
 }
+
+.p-dialog {
+  border: 1px solid var(--gray-500) !important;
+}
+
+.p-dialog .p-dialog-header {
+  background: var(--gray-700) !important;
+}
+
+.p-dialog .p-dialog-content {
+  background: var(--gray-700) !important;
+}

@@ -1,7 +1,8 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
+import { Dialog, DialogModule } from 'primeng/dialog';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Observable } from 'rxjs';
 import { IpcChannelEnum } from '../../../../../../libs/enums/ipc.channel.enum';
@@ -17,16 +18,21 @@ import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
   standalone: true,
   selector: 'app-service-project',
   templateUrl: './service-project.component.html',
-  imports: [CommonModule, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe, OrderByPipe, ContextMenuModule],
+  imports: [CommonModule, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe, OrderByPipe, ContextMenuModule, DialogModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServiceProjectComponent implements OnInit {
   @ViewChild('contextMenu') public contextMenu: ContextMenu;
+  @ViewChild('dialog') public dialog: Dialog;
 
   public openDirectory$: Observable<string>;
   public files$: Observable<ServiceProjectItemInterface[]>;
   public openedDirectories$: Observable<string[]>;
   public selectedItem$: Observable<ServiceProjectItemInterface>;
+
+  public isShowDialog = false;
+  public textHeaderDialog: string;
+  public checkedClicked = false;
 
   public contextMenuItems: MenuItem[] = [
     {
@@ -38,14 +44,30 @@ export class ServiceProjectComponent implements OnInit {
                     <img src="assets/icons/file-type/file.png" width="16" alt="file" />
                     Файл
                   </div>`,
-          escape: false
+          escape: false,
+          command: () => {
+            this.isShowDialog = true;
+            this.textHeaderDialog = 'Новый файл';
+            this.checkedClicked = true;
+            setTimeout(() => {
+              this.checkedClicked = false;
+            }, 500);
+          }
         },
         {
           label: `<div class="flex align-items-center gap-2">
                     <img src="assets/icons/file-type/directory.png" width="16" alt="directory" />
                     Папку
                   </div>`,
-          escape: false
+          escape: false,
+          command: () => {
+            this.isShowDialog = true;
+            this.textHeaderDialog = 'Новая папка';
+            this.checkedClicked = true;
+            setTimeout(() => {
+              this.checkedClicked = false;
+            }, 500);
+          }
         },
         {
           separator: true
@@ -55,14 +77,30 @@ export class ServiceProjectComponent implements OnInit {
                     <img src="assets/icons/file-type/pwn.png" width="16" alt="pwn" />
                     pwn файл
                   </div>`,
-          escape: false
+          escape: false,
+          command: () => {
+            this.isShowDialog = true;
+            this.textHeaderDialog = 'Новый pwn файл';
+            this.checkedClicked = true;
+            setTimeout(() => {
+              this.checkedClicked = false;
+            }, 500);
+          }
         },
         {
           label: `<div class="flex align-items-center gap-2">
                     <img src="assets/icons/file-type/inc.png" width="16" alt="inc" />
                     inc файл
                   </div>`,
-          escape: false
+          escape: false,
+          command: () => {
+            this.isShowDialog = true;
+            this.textHeaderDialog = 'Новый inc файл';
+            this.checkedClicked = true;
+            setTimeout(() => {
+              this.checkedClicked = false;
+            }, 500);
+          }
         }
       ]
     }
@@ -90,6 +128,13 @@ export class ServiceProjectComponent implements OnInit {
     this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, (event, files) => {
       this.serviceProjectService.setFiles(files);
     });
+  }
+
+  @HostListener('document:click', ['$event'])
+  public onClick(event: Event) {
+    if (!this.dialog.el.nativeElement.contains(event.target) && this.isShowDialog && !this.checkedClicked) {
+      this.isShowDialog = false;
+    }
   }
 
   public toItem(item: any): ServiceProjectItemInterface {

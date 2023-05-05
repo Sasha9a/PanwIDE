@@ -45,3 +45,10 @@
 </div>
 
 <p-contextMenu #contextMenu [model]="contextMenuItems" appendTo="body"></p-contextMenu>
+
+<p-dialog #dialog [(visible)]="isShowDialog" [style]="{ width: '20rem' }" [closable]="false" [resizable]="false">
+  <ng-template pTemplate="header">
+    <span class="font-medium text-white text-center w-full">{{ textHeaderDialog }}</span>
+  </ng-template>
+  <div class="w-full border-top-1"></div>
+</p-dialog>
