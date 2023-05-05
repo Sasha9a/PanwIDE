@@ -1,5 +1,7 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { MenuItem } from 'primeng/api';
+import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Observable } from 'rxjs';
 import { IpcChannelEnum } from '../../../../../../libs/enums/ipc.channel.enum';
@@ -15,14 +17,56 @@ import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
   standalone: true,
   selector: 'app-service-project',
   templateUrl: './service-project.component.html',
-  imports: [CommonModule, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe, OrderByPipe],
+  imports: [CommonModule, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe, OrderByPipe, ContextMenuModule],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServiceProjectComponent implements OnInit {
+  @ViewChild('contextMenu') public contextMenu: ContextMenu;
+
   public openDirectory$: Observable<string>;
   public files$: Observable<ServiceProjectItemInterface[]>;
   public openedDirectories$: Observable<string[]>;
   public selectedItem$: Observable<ServiceProjectItemInterface>;
+
+  public contextMenuItems: MenuItem[] = [
+    {
+      label: 'Добавить',
+      icon: 'pi pi-plus',
+      items: [
+        {
+          label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/file.png" width="16" alt="file" />
+                    Файл
+                  </div>`,
+          escape: false
+        },
+        {
+          label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/directory.png" width="16" alt="directory" />
+                    Папку
+                  </div>`,
+          escape: false
+        },
+        {
+          separator: true
+        },
+        {
+          label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/pwn.png" width="16" alt="pwn" />
+                    pwn файл
+                  </div>`,
+          escape: false
+        },
+        {
+          label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/inc.png" width="16" alt="inc" />
+                    inc файл
+                  </div>`,
+          escape: false
+        }
+      ]
+    }
+  ];
 
   public constructor(
     private readonly globalStorageService: GlobalStorageService,
@@ -59,10 +103,16 @@ export class ServiceProjectComponent implements OnInit {
     } else {
       openedDirectory.push(fullPath);
     }
+    this.contextMenu.hide();
     this.localStorageService.setOpenedDirectory(openedDirectory);
   }
 
   public setSelectedItem(item: ServiceProjectItemInterface) {
     this.serviceProjectService.setSelectedItem(item);
+  }
+
+  public toggleContextMenu(event: MouseEvent, item: ServiceProjectItemInterface) {
+    this.serviceProjectService.setSelectedItem(item);
+    this.contextMenu.show(event);
   }
 }

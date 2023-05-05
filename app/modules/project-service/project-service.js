@@ -40,7 +40,7 @@ const createHandles = () => {
             yield generateFileInfo(path);
         }));
         watcher.on('error', (error) => {
-            console.error(`Произошла ошибка при работе с chokidar: "${error.name}" ${error.message}`);
+            console.error(`Error to work in chokidar: "${error.name}" ${error.message}`);
         });
     });
 };

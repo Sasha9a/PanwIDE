@@ -8,7 +8,7 @@
 
     <ng-template #fileItem let-item="item" let-level="level">
       <ng-container *ngIf="toItem(item) as item">
-        <div (click)="setSelectedItem(item)">
+        <div (click)="setSelectedItem(item)" (contextmenu)="toggleContextMenu($event, item)">
           <div class="mx-3 border-round-md" [class.surface-600]="(selectedItem$ | async)?.fullPath === item.fullPath">
             <div class="flex align-items-center gap-1 py-1" [ngStyle]="{ 'margin-left.px': 14 * level }">
               <div>
@@ -43,3 +43,5 @@
     </ng-template>
   </p-scrollPanel>
 </div>
+
+<p-contextMenu #contextMenu [model]="contextMenuItems" appendTo="body"></p-contextMenu>
