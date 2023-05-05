@@ -44,7 +44,9 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
   }
 
   public updateStorage() {
-    this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this.getState));
+    if (this.electronService.fs.existsSync(this.fullPath)) {
+      this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this.getState));
+    }
   }
 
   public resizePanel(sizes: [number, number], panel: PanelEnum) {
@@ -126,6 +128,11 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
     this.updateState({
       [newKey]: { ...newData }
     });
+    this.updateStorage();
+  }
+
+  public setOpenedDirectory(openedDirectories: string[]) {
+    this.updateState({ openedDirectories: [...openedDirectories] });
     this.updateStorage();
   }
 

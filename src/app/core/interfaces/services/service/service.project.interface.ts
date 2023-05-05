@@ -2,6 +2,5 @@ import { ServiceProjectItemInterface } from '../../../../../../libs/interfaces/s
 
 export interface ServiceProjectInterface {
   files: ServiceProjectItemInterface[];
-  openedDirectory: string[];
   selectedItem: ServiceProjectItemInterface;
 }

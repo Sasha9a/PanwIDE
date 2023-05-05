@@ -19,5 +19,6 @@ export const localStorageInitialState: LocalStorageInterface = {
     size: 20,
     services: [],
     activeService: null
-  }
+  },
+  openedDirectories: []
 };

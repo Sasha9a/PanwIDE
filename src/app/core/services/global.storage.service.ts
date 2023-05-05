@@ -52,6 +52,8 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
   }
 
   public updateStorage() {
-    this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this.getState));
+    if (this.electronService.fs.existsSync(this.fullPath)) {
+      this.electronService.fs.writeFileSync(this.fullPath, JSON.stringify(this.getState));
+    }
   }
 }

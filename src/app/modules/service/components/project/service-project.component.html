@@ -15,8 +15,8 @@
                 <i
                   *ngIf="item.isDirectory; else notDirectory"
                   class="pi text-gray-50 font-bold"
-                  [class.pi-angle-down]="(openedDirectory$ | async).includes(item.fullPath)"
-                  [class.pi-angle-right]="!(openedDirectory$ | async).includes(item.fullPath)"
+                  [class.pi-angle-down]="(openedDirectories$ | async).includes(item.fullPath)"
+                  [class.pi-angle-right]="!(openedDirectories$ | async).includes(item.fullPath)"
                   (click)="toggleOpenedDirectory(item.fullPath); $event.stopPropagation()"
                 ></i>
                 <ng-template #notDirectory>
@@ -34,7 +34,7 @@
           </div>
         </div>
 
-        <ng-container *ngIf="item.children?.length && (openedDirectory$ | async).includes(item.fullPath)">
+        <ng-container *ngIf="item.children?.length && (openedDirectories$ | async).includes(item.fullPath)">
           <ng-container *ngFor="let childFile of item.children | orderBy : 'name:string' | orderBy : '-isDirectory:number'">
             <ng-template [ngTemplateOutlet]="fileItem" [ngTemplateOutletContext]="{ item: childFile, level: level + 1 }"></ng-template>
           </ng-container>

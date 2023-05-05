@@ -10,7 +10,6 @@ import { StoreService } from '../store.service';
 export class ServiceProjectService extends StoreService<ServiceProjectInterface> {
   protected state: BehaviorSubject<ServiceProjectInterface> = new BehaviorSubject<ServiceProjectInterface>({
     files: [],
-    openedDirectory: [],
     selectedItem: null
   });
 
@@ -24,10 +23,6 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
 
   public setFiles(files: ServiceProjectItemInterface[]) {
     this.updateState({ files: [...files] });
-  }
-
-  public setOpenedDirectory(openedDirectory: string[]) {
-    this.updateState({ openedDirectory: [...openedDirectory] });
   }
 
   public setSelectedItem(selectedItem: ServiceProjectItemInterface) {

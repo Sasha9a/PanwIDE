@@ -11,4 +11,5 @@ export interface LocalStorageInterface {
   leftPanel: LocalPanelInterface;
   rightPanel: LocalPanelInterface;
   bottomPanel: LocalPanelInterface;
+  openedDirectories: string[];
 }
