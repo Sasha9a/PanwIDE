@@ -8,12 +8,37 @@ import { win } from '../../main';
 export const createHandles = () => {
   ipcMain.handle(IpcChannelEnum.SERVICE_PROJECT_START_LOAD_FILES, (event, path: string) => {
     const watcher = chokidar.watch(path);
+    let isFullLoad = false;
     watcher.on('ready', async () => {
-      const info: ServiceProjectItemInterface[] = [];
-      await parseFiles(path, info);
-      win.webContents.send(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, info);
+      await generateFileInfo(path);
+      isFullLoad = true;
+    });
+    watcher.on('add', async () => {
+      if (isFullLoad) {
+        await generateFileInfo(path);
+      }
+    });
+    watcher.on('addDir', async () => {
+      if (isFullLoad) {
+        await generateFileInfo(path);
+      }
+    });
+    watcher.on('unlink', async () => {
+      await generateFileInfo(path);
+    });
+    watcher.on('unlinkDir', async () => {
+      await generateFileInfo(path);
+    });
+    watcher.on('error', (error) => {
+      console.error(`Произошла ошибка при работе с chokidar: "${error.name}" ${error.message}`);
     });
   });
+};
+
+const generateFileInfo = async (path: string) => {
+  const info: ServiceProjectItemInterface[] = [];
+  await parseFiles(path, info);
+  win.webContents.send(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, info);
 };
 
 const parseFiles = async (path: string, info: ServiceProjectItemInterface[]) => {

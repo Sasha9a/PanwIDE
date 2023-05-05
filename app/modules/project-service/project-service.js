@@ -18,14 +18,38 @@ const main_1 = require("../../main");
 const createHandles = () => {
     electron_1.ipcMain.handle(ipc_channel_enum_1.IpcChannelEnum.SERVICE_PROJECT_START_LOAD_FILES, (event, path) => {
         const watcher = chokidar.watch(path);
+        let isFullLoad = false;
         watcher.on('ready', () => __awaiter(void 0, void 0, void 0, function* () {
-            const info = [];
-            yield parseFiles(path, info);
-            main_1.win.webContents.send(ipc_channel_enum_1.IpcChannelEnum.SERVICE_PROJECT_GET_FILES, info);
+            yield generateFileInfo(path);
+            isFullLoad = true;
         }));
+        watcher.on('add', () => __awaiter(void 0, void 0, void 0, function* () {
+            if (isFullLoad) {
+                yield generateFileInfo(path);
+            }
+        }));
+        watcher.on('addDir', () => __awaiter(void 0, void 0, void 0, function* () {
+            if (isFullLoad) {
+                yield generateFileInfo(path);
+            }
+        }));
+        watcher.on('unlink', () => __awaiter(void 0, void 0, void 0, function* () {
+            yield generateFileInfo(path);
+        }));
+        watcher.on('unlinkDir', () => __awaiter(void 0, void 0, void 0, function* () {
+            yield generateFileInfo(path);
+        }));
+        watcher.on('error', (error) => {
+            console.error(`Произошла ошибка при работе с chokidar: "${error.name}" ${error.message}`);
+        });
     });
 };
 exports.createHandles = createHandles;
+const generateFileInfo = (path) => __awaiter(void 0, void 0, void 0, function* () {
+    const info = [];
+    yield parseFiles(path, info);
+    main_1.win.webContents.send(ipc_channel_enum_1.IpcChannelEnum.SERVICE_PROJECT_GET_FILES, info);
+});
 const parseFiles = (path, info) => __awaiter(void 0, void 0, void 0, function* () {
     const pathStat = fs.statSync(path);
     const isWin = path.includes('\\');
