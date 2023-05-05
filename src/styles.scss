@@ -72,3 +72,11 @@ img {
 .p-tooltip-arrow {
   display: none !important;
 }
+
+.p-splitter-gutter {
+  background-color: rgba(0, 0, 0, 0.9) !important;
+
+  .p-splitter-gutter-handle {
+    display: none !important;
+  }
+}

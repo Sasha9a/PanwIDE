@@ -51,6 +51,30 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
 
   public resizePanel(sizes: [number, number], panel: PanelEnum) {
     if (panel === PanelEnum.LEFT) {
+      const panelInfo = this.getState.leftPanel;
+
+      if (panelInfo.size === sizes[0]) {
+        return;
+      }
+
+      panelInfo.size = sizes[0];
+      this.updateState({
+        leftPanel: { ...panelInfo }
+      });
+      this.updateStorage();
+    } else {
+      const panelKey = this.convertPanelTypeToKey(panel);
+      const panelInfo = this.getState[panelKey];
+
+      if (panelInfo.size === sizes[1]) {
+        return;
+      }
+
+      panelInfo.size = sizes[1];
+      this.updateState({
+        [panelKey]: { ...panelInfo }
+      });
+      this.updateStorage();
     }
   }
 

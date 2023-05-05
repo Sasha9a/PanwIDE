@@ -24,10 +24,10 @@
                 </ng-template>
               </div>
               <img [ngSrc]="item | fileTypeImagePath" width="18" height="18" [alt]="item.name" />
-              <p class="select-none font-medium">
+              <p class="select-none font-medium white-space-nowrap">
                 {{ item.name }}
               </p>
-              <p *ngIf="level === 0" class="select-none font-normal text-gray-300">
+              <p *ngIf="level === 0" class="select-none font-normal text-gray-300 white-space-nowrap">
                 {{ item.fullPath }}
               </p>
             </div>
