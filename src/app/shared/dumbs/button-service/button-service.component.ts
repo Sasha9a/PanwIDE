@@ -5,9 +5,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
 import { PanelEnum } from '../../../core/enums/panel.enum';
 import { ServiceTypeEnum } from '../../../core/enums/service.type.enum';
-import { GlobalPanelInterface } from '../../../core/interfaces/global.storage.interface';
+import { LocalPanelInterface } from '../../../core/interfaces/local.storage.interface';
 import { GlobalDragButtonService } from '../../../core/services/global-drag-button.service';
-import { GlobalStorageService } from '../../../core/services/global.storage.service';
+import { LocalStorageService } from '../../../core/services/local-storage.service';
 
 @Component({
   selector: 'app-button-service',
@@ -20,7 +20,7 @@ export class ButtonServiceComponent implements OnInit {
   @Input() public serviceType: ServiceTypeEnum;
   @Input() public panelType: PanelEnum;
 
-  public panelInfo$: Observable<GlobalPanelInterface>;
+  public panelInfo$: Observable<LocalPanelInterface>;
 
   public readonly serviceInfo: Record<ServiceTypeEnum, { src: string; tooltip: string }> = {
     [ServiceTypeEnum.PROJECT]: {
@@ -31,12 +31,12 @@ export class ButtonServiceComponent implements OnInit {
 
   public constructor(
     private readonly globalDragButtonService: GlobalDragButtonService,
-    private readonly globalStorageService: GlobalStorageService
+    private readonly localStorageService: LocalStorageService
   ) {}
 
   public ngOnInit() {
-    const keyPanel = this.globalStorageService.convertPanelTypeToKey(this.panelType);
-    this.panelInfo$ = this.globalStorageService.select((state) => state[keyPanel]);
+    const keyPanel = this.localStorageService.convertPanelTypeToKey(this.panelType);
+    this.panelInfo$ = this.localStorageService.select((state) => state[keyPanel]);
   }
 
   public dragStart() {
@@ -48,6 +48,6 @@ export class ButtonServiceComponent implements OnInit {
   }
 
   public clickButton() {
-    this.globalStorageService.toggleService(this.serviceType);
+    this.localStorageService.toggleService(this.serviceType);
   }
 }

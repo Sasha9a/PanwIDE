@@ -10,8 +10,9 @@ import { LeftPanelComponent } from '../modules/left-panel/left-panel.component';
 import { RightPanelComponent } from '../modules/right-panel/right-panel.component';
 import { ServiceSwitchComponent } from '../modules/service/components/switch/service-switch.component';
 import { PanelEnum } from './enums/panel.enum';
-import { GlobalPanelInterface } from './interfaces/global.storage.interface';
+import { LocalPanelInterface } from './interfaces/local.storage.interface';
 import { GlobalStorageService } from './services/global.storage.service';
+import { LocalStorageService } from './services/local-storage.service';
 
 @Component({
   standalone: true,
@@ -32,25 +33,28 @@ import { GlobalStorageService } from './services/global.storage.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent implements OnInit {
-  public leftPanel$: Observable<GlobalPanelInterface>;
-  public rightPanel$: Observable<GlobalPanelInterface>;
-  public bottomPanel$: Observable<GlobalPanelInterface>;
+  public leftPanel$: Observable<LocalPanelInterface>;
+  public rightPanel$: Observable<LocalPanelInterface>;
+  public bottomPanel$: Observable<LocalPanelInterface>;
 
   public get PanelEnum() {
     return PanelEnum;
   }
 
-  public constructor(public readonly globalStorageService: GlobalStorageService) {}
+  public constructor(
+    private readonly globalStorageService: GlobalStorageService,
+    private readonly localStorageService: LocalStorageService
+  ) {}
 
   public ngOnInit() {
-    this.leftPanel$ = this.globalStorageService.select((state) => state.leftPanel);
-    this.rightPanel$ = this.globalStorageService.select((state) => state.rightPanel);
-    this.bottomPanel$ = this.globalStorageService.select((state) => state.bottomPanel);
+    this.leftPanel$ = this.localStorageService.select((state) => state.leftPanel);
+    this.rightPanel$ = this.localStorageService.select((state) => state.rightPanel);
+    this.bottomPanel$ = this.localStorageService.select((state) => state.bottomPanel);
 
     this.globalStorageService.loadStorage();
   }
 
   public onResizeEndPanel(event: { originalEvent: MouseEvent; sizes: [number, number] }, panel: PanelEnum) {
-    this.globalStorageService.resizePanel(event.sizes, panel);
+    this.localStorageService.resizePanel(event.sizes, panel);
   }
 }

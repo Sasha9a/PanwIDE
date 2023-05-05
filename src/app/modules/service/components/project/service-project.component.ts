@@ -24,7 +24,7 @@ export class ServiceProjectComponent implements OnInit {
   public selectedItem$: Observable<ServiceProjectItemInterface>;
 
   public constructor(
-    public readonly globalStorageService: GlobalStorageService,
+    private readonly globalStorageService: GlobalStorageService,
     private readonly electronService: ElectronService,
     private readonly serviceProjectService: ServiceProjectService
   ) {}
