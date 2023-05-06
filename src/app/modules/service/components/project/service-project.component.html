@@ -52,6 +52,7 @@
   [closable]="false"
   [resizable]="false"
   (keyup.escape)="clickToEscape()"
+  (keyup.enter)="onClickEnterDialog()"
   appExternalEvents
   (onClickExternal)="onClickExternalDialog()"
   (onContextMenuExternal)="onContextMenuExternalDialog()"
@@ -60,5 +61,16 @@
     <span class="font-medium text-white text-center w-full">{{ textHeaderDialog }}</span>
   </ng-template>
   <div class="w-full border-top-1 border-black-alpha-90"></div>
-  <input type="text" pInputText class="w-full" placeholder="Название" appInfiniteAutofocus [isModal]="true" [isShowModal]="isShowDialog" />
+  <form [formGroup]="formDialog">
+    <input
+      type="text"
+      pInputText
+      formControlName="name"
+      class="w-full"
+      placeholder="Название"
+      appInfiniteAutofocus
+      [isModal]="true"
+      [isShowModal]="isShowDialog"
+    />
+  </form>
 </p-dialog>

@@ -1,5 +1,6 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
@@ -16,6 +17,7 @@ import { LocalStorageService } from '../../../../core/services/local-storage.ser
 import { ServiceProjectService } from '../../../../core/services/service/service-project.service';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
+import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
 
 @Component({
   standalone: true,
@@ -31,7 +33,8 @@ import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
     DialogModule,
     InputTextModule,
     InfiniteAutofocusDirective,
-    ExternalEventsDirective
+    ExternalEventsDirective,
+    ReactiveFormsModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -44,9 +47,13 @@ export class ServiceProjectComponent implements OnInit {
   public selectedItem$: Observable<ServiceProjectItemInterface>;
 
   public isShowDialog = false;
-  public dialogType: 'newFile' | 'newDirectory' | 'newPwn' | 'newInc';
+  public dialogType: ServiceProjectDialogTypeEnum;
   public textHeaderDialog: string;
   public checkedClicked = false;
+
+  public formDialog: FormGroup = new FormGroup<{ name: FormControl<string> }>({
+    name: new FormControl('', [Validators.required, Validators.minLength(1)])
+  });
 
   public contextMenuItems: MenuItem[] = [
     {
@@ -61,7 +68,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
-            this.dialogType = 'newFile';
+            this.dialogType = ServiceProjectDialogTypeEnum.newFile;
             this.textHeaderDialog = 'Новый файл';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -77,7 +84,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
-            this.dialogType = 'newDirectory';
+            this.dialogType = ServiceProjectDialogTypeEnum.newDirectory;
             this.textHeaderDialog = 'Новая папка';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -96,7 +103,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
-            this.dialogType = 'newPwn';
+            this.dialogType = ServiceProjectDialogTypeEnum.newPwn;
             this.textHeaderDialog = 'Новый pwn файл';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -112,7 +119,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
-            this.dialogType = 'newInc';
+            this.dialogType = ServiceProjectDialogTypeEnum.newInc;
             this.textHeaderDialog = 'Новый inc файл';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -183,6 +190,12 @@ export class ServiceProjectComponent implements OnInit {
   public clickToEscape() {
     if (this.isShowDialog) {
       this.isShowDialog = false;
+    }
+  }
+
+  public onClickEnterDialog() {
+    console.log(this.formDialog);
+    if (this.formDialog.valid) {
     }
   }
 
