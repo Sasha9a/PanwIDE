@@ -1,12 +1,15 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, HostListener, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
-import { Dialog, DialogModule } from 'primeng/dialog';
+import { DialogModule } from 'primeng/dialog';
+import { InputTextModule } from 'primeng/inputtext';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Observable } from 'rxjs';
 import { IpcChannelEnum } from '../../../../../../libs/enums/ipc.channel.enum';
 import { ServiceProjectItemInterface } from '../../../../../../libs/interfaces/service.project.item.interface';
+import { ExternalEventsDirective } from '../../../../core/directives/external-events.directive';
+import { InfiniteAutofocusDirective } from '../../../../core/directives/infinite-autofocus.directive';
 import { ElectronService } from '../../../../core/services/electron.service';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
 import { LocalStorageService } from '../../../../core/services/local-storage.service';
@@ -18,12 +21,22 @@ import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
   standalone: true,
   selector: 'app-service-project',
   templateUrl: './service-project.component.html',
-  imports: [CommonModule, ScrollPanelModule, NgOptimizedImage, FileTypeImagePathPipe, OrderByPipe, ContextMenuModule, DialogModule],
+  imports: [
+    CommonModule,
+    ScrollPanelModule,
+    NgOptimizedImage,
+    FileTypeImagePathPipe,
+    OrderByPipe,
+    ContextMenuModule,
+    DialogModule,
+    InputTextModule,
+    InfiniteAutofocusDirective,
+    ExternalEventsDirective
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServiceProjectComponent implements OnInit {
   @ViewChild('contextMenu') public contextMenu: ContextMenu;
-  @ViewChild('dialog') public dialog: Dialog;
 
   public openDirectory$: Observable<string>;
   public files$: Observable<ServiceProjectItemInterface[]>;
@@ -31,6 +44,7 @@ export class ServiceProjectComponent implements OnInit {
   public selectedItem$: Observable<ServiceProjectItemInterface>;
 
   public isShowDialog = false;
+  public dialogType: 'newFile' | 'newDirectory' | 'newPwn' | 'newInc';
   public textHeaderDialog: string;
   public checkedClicked = false;
 
@@ -47,6 +61,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
+            this.dialogType = 'newFile';
             this.textHeaderDialog = 'Новый файл';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -62,6 +77,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
+            this.dialogType = 'newDirectory';
             this.textHeaderDialog = 'Новая папка';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -80,6 +96,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
+            this.dialogType = 'newPwn';
             this.textHeaderDialog = 'Новый pwn файл';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -95,6 +112,7 @@ export class ServiceProjectComponent implements OnInit {
           escape: false,
           command: () => {
             this.isShowDialog = true;
+            this.dialogType = 'newInc';
             this.textHeaderDialog = 'Новый inc файл';
             this.checkedClicked = true;
             setTimeout(() => {
@@ -130,11 +148,12 @@ export class ServiceProjectComponent implements OnInit {
     });
   }
 
-  @HostListener('document:click', ['$event'])
-  public onClick(event: Event) {
-    if (!this.dialog.el.nativeElement.contains(event.target) && this.isShowDialog && !this.checkedClicked) {
-      this.isShowDialog = false;
-    }
+  public onClickExternalDialog() {
+    this.hideDialog();
+  }
+
+  public onContextMenuExternalDialog() {
+    this.hideDialog();
   }
 
   public toItem(item: any): ServiceProjectItemInterface {
@@ -159,5 +178,17 @@ export class ServiceProjectComponent implements OnInit {
   public toggleContextMenu(event: MouseEvent, item: ServiceProjectItemInterface) {
     this.serviceProjectService.setSelectedItem(item);
     this.contextMenu.show(event);
+  }
+
+  public clickToEscape() {
+    if (this.isShowDialog) {
+      this.isShowDialog = false;
+    }
+  }
+
+  private hideDialog() {
+    if (this.isShowDialog && !this.checkedClicked) {
+      this.isShowDialog = false;
+    }
   }
 }

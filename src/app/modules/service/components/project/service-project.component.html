@@ -46,9 +46,19 @@
 
 <p-contextMenu #contextMenu [model]="contextMenuItems" appendTo="body"></p-contextMenu>
 
-<p-dialog #dialog [(visible)]="isShowDialog" [style]="{ width: '20rem' }" [closable]="false" [resizable]="false">
+<p-dialog
+  [(visible)]="isShowDialog"
+  [style]="{ width: '25rem' }"
+  [closable]="false"
+  [resizable]="false"
+  (keyup.escape)="clickToEscape()"
+  appExternalEvents
+  (onClickExternal)="onClickExternalDialog()"
+  (onContextMenuExternal)="onContextMenuExternalDialog()"
+>
   <ng-template pTemplate="header">
     <span class="font-medium text-white text-center w-full">{{ textHeaderDialog }}</span>
   </ng-template>
-  <div class="w-full border-top-1"></div>
+  <div class="w-full border-top-1 border-black-alpha-90"></div>
+  <input type="text" pInputText class="w-full" placeholder="Название" appInfiniteAutofocus [isModal]="true" [isShowModal]="isShowDialog" />
 </p-dialog>

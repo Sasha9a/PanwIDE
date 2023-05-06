@@ -106,6 +106,10 @@ img {
   color: #6d8fdc !important;
 }
 
+.p-contextmenu .p-menuitem-link:focus {
+  box-shadow: none !important;
+}
+
 .p-contextmenu .p-submenu-list {
   border: 1px solid var(--gray-500) !important;
   background: var(--gray-700) !important;
@@ -132,4 +136,24 @@ img {
 
 .p-dialog .p-dialog-content {
   background: var(--gray-700) !important;
+  padding: 0 !important;
+}
+
+.p-inputtext {
+  background: var(--gray-700) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 300 !important;
+  caret-color: white;
+  font-size: 1rem;
+  padding: 0.5rem 0.5rem;
+}
+
+.p-inputtext::placeholder {
+  color: var(--gray-300);
+}
+
+.p-inputtext:enabled:focus {
+  border: none !important;
+  box-shadow: none !important;
 }
