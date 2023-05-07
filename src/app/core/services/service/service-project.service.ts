@@ -1,7 +1,7 @@
 import { ApplicationRef, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { ServiceProjectItemInterface } from '../../../../../libs/interfaces/service.project.item.interface';
-import { ServiceProjectInterface } from '../../interfaces/services/service/service.project.interface';
+import { ServiceProjectDialogInfoInterface, ServiceProjectInterface } from '../../interfaces/services/service/service.project.interface';
 import { StoreService } from '../store.service';
 
 @Injectable({
@@ -10,7 +10,10 @@ import { StoreService } from '../store.service';
 export class ServiceProjectService extends StoreService<ServiceProjectInterface> {
   protected state: BehaviorSubject<ServiceProjectInterface> = new BehaviorSubject<ServiceProjectInterface>({
     files: [],
-    selectedItem: null
+    selectedItem: null,
+    dialogInfo: {
+      dialogType: null
+    }
   });
 
   public get getState() {
@@ -27,5 +30,9 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
 
   public setSelectedItem(selectedItem: ServiceProjectItemInterface) {
     this.updateState({ selectedItem: { ...selectedItem } });
+  }
+
+  public setDialogInfo(dialogInfo: ServiceProjectDialogInfoInterface) {
+    this.updateState({ dialogInfo: { ...dialogInfo } });
   }
 }

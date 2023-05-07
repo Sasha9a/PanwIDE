@@ -17,6 +17,7 @@ import { LocalStorageService } from '../../../../core/services/local-storage.ser
 import { ServiceProjectService } from '../../../../core/services/service/service-project.service';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
+import { ParseFormErrorToStringPipe } from '../../../../shared/pipes/parse-form-error-to-string.pipe';
 import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
 import { ServiceProjectNewFileNameValidator } from '../../validators/service.project.new.file.name.validator';
 
@@ -35,7 +36,8 @@ import { ServiceProjectNewFileNameValidator } from '../../validators/service.pro
     InputTextModule,
     InfiniteAutofocusDirective,
     ExternalEventsDirective,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ParseFormErrorToStringPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -48,87 +50,17 @@ export class ServiceProjectComponent implements OnInit {
   public selectedItem$: Observable<ServiceProjectItemInterface>;
 
   public isShowDialog = false;
-  public dialogType: ServiceProjectDialogTypeEnum;
   public textHeaderDialog: string;
   public checkedClicked = false;
 
   public formDialog: FormGroup<{ name: FormControl<string> }>;
+  public directoryErrorsForm: Record<string, string> = {
+    minlength: 'Введите название',
+    existsFile: 'Файл с этим названием уже существует',
+    existsDirectory: 'Папка с этим названием уже существует'
+  };
 
-  public contextMenuItems: MenuItem[] = [
-    {
-      label: 'Добавить',
-      icon: 'pi pi-plus',
-      items: [
-        {
-          label: `<div class="flex align-items-center gap-2">
-                    <img src="assets/icons/file-type/file.png" width="16" alt="file" />
-                    Файл
-                  </div>`,
-          escape: false,
-          command: () => {
-            this.isShowDialog = true;
-            this.dialogType = ServiceProjectDialogTypeEnum.newFile;
-            this.textHeaderDialog = 'Новый файл';
-            this.checkedClicked = true;
-            setTimeout(() => {
-              this.checkedClicked = false;
-            }, 500);
-          }
-        },
-        {
-          label: `<div class="flex align-items-center gap-2">
-                    <img src="assets/icons/file-type/directory.png" width="16" alt="directory" />
-                    Папку
-                  </div>`,
-          escape: false,
-          command: () => {
-            this.isShowDialog = true;
-            this.dialogType = ServiceProjectDialogTypeEnum.newDirectory;
-            this.textHeaderDialog = 'Новая папка';
-            this.checkedClicked = true;
-            setTimeout(() => {
-              this.checkedClicked = false;
-            }, 500);
-          }
-        },
-        {
-          separator: true
-        },
-        {
-          label: `<div class="flex align-items-center gap-2">
-                    <img src="assets/icons/file-type/pwn.png" width="16" alt="pwn" />
-                    pwn файл
-                  </div>`,
-          escape: false,
-          command: () => {
-            this.isShowDialog = true;
-            this.dialogType = ServiceProjectDialogTypeEnum.newPwn;
-            this.textHeaderDialog = 'Новый pwn файл';
-            this.checkedClicked = true;
-            setTimeout(() => {
-              this.checkedClicked = false;
-            }, 500);
-          }
-        },
-        {
-          label: `<div class="flex align-items-center gap-2">
-                    <img src="assets/icons/file-type/inc.png" width="16" alt="inc" />
-                    inc файл
-                  </div>`,
-          escape: false,
-          command: () => {
-            this.isShowDialog = true;
-            this.dialogType = ServiceProjectDialogTypeEnum.newInc;
-            this.textHeaderDialog = 'Новый inc файл';
-            this.checkedClicked = true;
-            setTimeout(() => {
-              this.checkedClicked = false;
-            }, 500);
-          }
-        }
-      ]
-    }
-  ];
+  public contextMenuItems: MenuItem[];
 
   public constructor(
     private readonly globalStorageService: GlobalStorageService,
@@ -140,8 +72,84 @@ export class ServiceProjectComponent implements OnInit {
 
   public ngOnInit() {
     this.formDialog = new FormGroup<{ name: FormControl<string> }>({
-      name: new FormControl('', [Validators.required, Validators.minLength(1), this.serviceProjectNewFileNameValidator.bind()])
+      name: new FormControl('', [Validators.minLength(1), this.serviceProjectNewFileNameValidator.bind()])
     });
+
+    this.contextMenuItems = [
+      {
+        label: 'Добавить',
+        icon: 'pi pi-plus',
+        items: [
+          {
+            label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/file.png" width="16" alt="file" />
+                    Файл
+                  </div>`,
+            escape: false,
+            command: () => {
+              this.isShowDialog = true;
+              this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.newFile });
+              this.textHeaderDialog = 'Новый файл';
+              this.checkedClicked = true;
+              setTimeout(() => {
+                this.checkedClicked = false;
+              }, 500);
+            }
+          },
+          {
+            label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/directory.png" width="16" alt="directory" />
+                    Папку
+                  </div>`,
+            escape: false,
+            command: () => {
+              this.isShowDialog = true;
+              this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.newDirectory });
+              this.textHeaderDialog = 'Новая папка';
+              this.checkedClicked = true;
+              setTimeout(() => {
+                this.checkedClicked = false;
+              }, 500);
+            }
+          },
+          {
+            separator: true
+          },
+          {
+            label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/pwn.png" width="16" alt="pwn" />
+                    pwn файл
+                  </div>`,
+            escape: false,
+            command: () => {
+              this.isShowDialog = true;
+              this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.newPwn });
+              this.textHeaderDialog = 'Новый pwn файл';
+              this.checkedClicked = true;
+              setTimeout(() => {
+                this.checkedClicked = false;
+              }, 500);
+            }
+          },
+          {
+            label: `<div class="flex align-items-center gap-2">
+                    <img src="assets/icons/file-type/inc.png" width="16" alt="inc" />
+                    inc файл
+                  </div>`,
+            escape: false,
+            command: () => {
+              this.isShowDialog = true;
+              this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.newInc });
+              this.textHeaderDialog = 'Новый inc файл';
+              this.checkedClicked = true;
+              setTimeout(() => {
+                this.checkedClicked = false;
+              }, 500);
+            }
+          }
+        ]
+      }
+    ];
 
     this.openDirectory$ = this.globalStorageService.select((state) => state.openDirectory);
     this.openDirectory$.subscribe((path) => {

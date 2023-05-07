@@ -66,11 +66,14 @@
       type="text"
       pInputText
       formControlName="name"
-      class="w-full {{ formDialog.get('name').errors?.exists ? 'border-error' : '' }}"
+      class="w-full {{ formDialog.get('name').errors ? 'border-error' : '' }}"
       placeholder="Название"
       appInfiniteAutofocus
       [isModal]="true"
       [isShowModal]="isShowDialog"
+      [pTooltip]="formDialog.get('name').errors | parseFormErrorToString : directoryErrorsForm"
+      tooltipEvent="focus"
+      tooltipPosition="top"
     />
   </form>
 </p-dialog>
