@@ -18,6 +18,7 @@ import { ServiceProjectService } from '../../../../core/services/service/service
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
+import { ServiceProjectNewFileNameValidator } from '../../validators/service.project.new.file.name.validator';
 
 @Component({
   standalone: true,
@@ -51,9 +52,7 @@ export class ServiceProjectComponent implements OnInit {
   public textHeaderDialog: string;
   public checkedClicked = false;
 
-  public formDialog: FormGroup = new FormGroup<{ name: FormControl<string> }>({
-    name: new FormControl('', [Validators.required, Validators.minLength(1)])
-  });
+  public formDialog: FormGroup<{ name: FormControl<string> }>;
 
   public contextMenuItems: MenuItem[] = [
     {
@@ -135,10 +134,15 @@ export class ServiceProjectComponent implements OnInit {
     private readonly globalStorageService: GlobalStorageService,
     private readonly localStorageService: LocalStorageService,
     private readonly electronService: ElectronService,
-    private readonly serviceProjectService: ServiceProjectService
+    private readonly serviceProjectService: ServiceProjectService,
+    private readonly serviceProjectNewFileNameValidator: ServiceProjectNewFileNameValidator
   ) {}
 
   public ngOnInit() {
+    this.formDialog = new FormGroup<{ name: FormControl<string> }>({
+      name: new FormControl('', [Validators.required, Validators.minLength(1), this.serviceProjectNewFileNameValidator.bind()])
+    });
+
     this.openDirectory$ = this.globalStorageService.select((state) => state.openDirectory);
     this.openDirectory$.subscribe((path) => {
       if (path) {

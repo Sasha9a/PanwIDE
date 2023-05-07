@@ -154,6 +154,14 @@ img {
 }
 
 .p-inputtext:enabled:focus {
+  box-shadow: none !important;
+}
+
+.p-inputtext:not(.border-error):enabled:focus {
   border: none !important;
   box-shadow: none !important;
+}
+
+.border-error {
+  border: 1px solid #d8222f !important;
 }
