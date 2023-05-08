@@ -23,6 +23,7 @@
         "build": {
           "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "allowedCommonJsDependencies": ["ts-key-enum"],
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",

@@ -33,7 +33,8 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
 
   public loadStorage() {
     if (!this.electronService.fs.existsSync(this.fullPath)) {
-      this.electronService.fs.openSync(this.fullPath, 'w+');
+      const fd = this.electronService.fs.openSync(this.fullPath, 'w+');
+      this.electronService.fs.closeSync(fd);
     }
     this.electronService.fs.readFile(this.fullPath, (err, data) => {
       if (err) {

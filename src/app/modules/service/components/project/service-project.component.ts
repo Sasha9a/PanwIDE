@@ -1,5 +1,5 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
@@ -8,6 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Tooltip } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
+import { Key } from 'ts-key-enum';
 import { IpcChannelEnum } from '../../../../../../libs/enums/ipc.channel.enum';
 import { ServiceProjectItemInterface } from '../../../../../../libs/interfaces/service.project.item.interface';
 import { ExternalEventsDirective } from '../../../../core/directives/external-events.directive';
@@ -155,6 +156,22 @@ export class ServiceProjectComponent implements OnInit {
             }
           }
         ]
+      },
+      {
+        separator: true
+      },
+      {
+        label: `<div class="flex justify-content-between gap-2">
+                  <div class="flex align-items-center gap-2">
+                    <div class="w-1rem"></div>
+                    Удалить
+                  </div>
+                  <p class="font-normal text-gray-300 white-space-nowrap">Delete</p>
+                </div>`,
+        escape: false,
+        command: () => {
+          this.deleteFile();
+        }
       }
     ];
 
@@ -180,6 +197,16 @@ export class ServiceProjectComponent implements OnInit {
     this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, (event, files) => {
       this.serviceProjectService.setFiles(files);
     });
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  public onKeyup(event: KeyboardEvent) {
+    console.log(this.panel, this.localTmpStorageService.getState?.activePanel);
+    if (this.panel === this.localTmpStorageService.getState?.activePanel) {
+      if (event.key === Key.Delete) {
+        this.deleteFile();
+      }
+    }
   }
 
   public onClickExternalDialog() {
@@ -233,11 +260,14 @@ export class ServiceProjectComponent implements OnInit {
       if (dialogType === ServiceProjectDialogTypeEnum.newDirectory) {
         this.electronService.fs.mkdirSync(fullPath);
       } else if (dialogType === ServiceProjectDialogTypeEnum.newFile) {
-        this.electronService.fs.openSync(fullPath, 'w+');
+        const fd = this.electronService.fs.openSync(fullPath, 'w+');
+        this.electronService.fs.closeSync(fd);
       } else if (dialogType === ServiceProjectDialogTypeEnum.newPwn) {
-        this.electronService.fs.openSync(`${fullPath}.pwn`, 'w+');
+        const fd = this.electronService.fs.openSync(`${fullPath}.pwn`, 'w+');
+        this.electronService.fs.closeSync(fd);
       } else if (dialogType === ServiceProjectDialogTypeEnum.newInc) {
-        this.electronService.fs.openSync(`${fullPath}.inc`, 'w+');
+        const fd = this.electronService.fs.openSync(`${fullPath}.inc`, 'w+');
+        this.electronService.fs.closeSync(fd);
       }
 
       this.isShowDialog = false;
@@ -254,5 +284,10 @@ export class ServiceProjectComponent implements OnInit {
       this.isShowDialog = false;
       this.formDialog.reset();
     }
+  }
+
+  public deleteFile() {
+    const selectedItem = this.serviceProjectService.getState?.selectedItem;
+    this.electronService.fs.rmSync(selectedItem.fullPath, { recursive: true, force: true });
   }
 }

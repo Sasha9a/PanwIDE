@@ -36,7 +36,8 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
       this.electronService.fs.mkdirSync(pathIde);
     }
     if (!this.electronService.fs.existsSync(this.fullPath)) {
-      this.electronService.fs.openSync(this.fullPath, 'w+');
+      const fd = this.electronService.fs.openSync(this.fullPath, 'w+');
+      this.electronService.fs.closeSync(fd);
     }
     this.electronService.fs.readFile(this.fullPath, (err, data) => {
       if (err) {
