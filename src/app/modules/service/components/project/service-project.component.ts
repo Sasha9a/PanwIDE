@@ -164,6 +164,19 @@ export class ServiceProjectComponent implements OnInit {
         label: `<div class="flex justify-content-between gap-2">
                   <div class="flex align-items-center gap-2">
                     <div class="w-1rem"></div>
+                    Переименовать
+                  </div>
+                  <p class="font-normal text-gray-300 white-space-nowrap">Shift+F6</p>
+                </div>`,
+        escape: false
+      },
+      {
+        separator: true
+      },
+      {
+        label: `<div class="flex justify-content-between gap-2">
+                  <div class="flex align-items-center gap-2">
+                    <div class="w-1rem"></div>
                     Удалить
                   </div>
                   <p class="font-normal text-gray-300 white-space-nowrap">Delete</p>
