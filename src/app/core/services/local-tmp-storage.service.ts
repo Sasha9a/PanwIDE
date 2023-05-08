@@ -1,5 +1,6 @@
 import { ApplicationRef, Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { PanelEnum } from '../enums/panel.enum';
 import { ServiceTypeEnum } from '../enums/service.type.enum';
 import { LocalTmpStorageInterface } from '../interfaces/local.tmp.storage.interface';
 import { localTmpStorageInitialState } from '../state/local.tmp.storage.initial.state';
@@ -21,5 +22,9 @@ export class LocalTmpStorageService extends StoreService<LocalTmpStorageInterfac
 
   public setDragInfo(dragInfo: { serviceType: ServiceTypeEnum }) {
     this.updateState({ dragInfo: { ...dragInfo } });
+  }
+
+  public setActivePanel(activePanel: PanelEnum) {
+    this.updateState({ activePanel });
   }
 }

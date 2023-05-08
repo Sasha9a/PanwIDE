@@ -7,7 +7,7 @@ import { LocalPanelInterface } from '../../core/interfaces/local.storage.interfa
 import { LocalTmpStorageDragInfoInterface } from '../../core/interfaces/local.tmp.storage.interface';
 import { LocalStorageService } from '../../core/services/local-storage.service';
 import { LocalTmpStorageService } from '../../core/services/local-tmp-storage.service';
-import { ButtonServiceComponent } from '../../shared/dumbs/button-service/button-service.component';
+import { ButtonServiceComponent } from '../../shared/components/button-service/button-service.component';
 
 @Component({
   selector: 'app-right-panel',

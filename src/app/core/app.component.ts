@@ -13,6 +13,7 @@ import { PanelEnum } from './enums/panel.enum';
 import { LocalPanelInterface } from './interfaces/local.storage.interface';
 import { GlobalStorageService } from './services/global.storage.service';
 import { LocalStorageService } from './services/local-storage.service';
+import { LocalTmpStorageService } from './services/local-tmp-storage.service';
 
 @Component({
   standalone: true,
@@ -43,7 +44,8 @@ export class AppComponent implements OnInit {
 
   public constructor(
     private readonly globalStorageService: GlobalStorageService,
-    private readonly localStorageService: LocalStorageService
+    private readonly localStorageService: LocalStorageService,
+    private readonly localTmpStorageService: LocalTmpStorageService
   ) {}
 
   public ngOnInit() {
@@ -56,5 +58,9 @@ export class AppComponent implements OnInit {
 
   public onResizeEndPanel(event: { originalEvent: MouseEvent; sizes: [number, number] }, panel: PanelEnum) {
     this.localStorageService.resizePanel(event.sizes, panel);
+  }
+
+  public clickToPanel(panel: PanelEnum) {
+    this.localTmpStorageService.setActivePanel(panel);
   }
 }

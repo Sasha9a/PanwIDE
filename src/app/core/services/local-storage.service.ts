@@ -4,7 +4,9 @@ import { PanelEnum } from '../enums/panel.enum';
 import { ServiceTypeEnum } from '../enums/service.type.enum';
 import { LocalPanelInterface, LocalStorageInterface } from '../interfaces/local.storage.interface';
 import { localStorageInitialState } from '../state/local.storage.initial.state';
+import { KeysOfType } from '../types/keys-of.type';
 import { ElectronService } from './electron.service';
+import { LocalTmpStorageService } from './local-tmp-storage.service';
 import { StoreService } from './store.service';
 
 @Injectable({
@@ -18,7 +20,11 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
     return this.state.value;
   }
 
-  public constructor(private readonly electronService: ElectronService, protected readonly appRef: ApplicationRef) {
+  public constructor(
+    private readonly electronService: ElectronService,
+    private readonly localTmpStorageService: LocalTmpStorageService,
+    protected readonly appRef: ApplicationRef
+  ) {
     super(appRef);
   }
 
@@ -85,9 +91,11 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
     if (panelInfo?.activeService === serviceType) {
       panelInfo.activeService = null;
       panelInfo.isShow = false;
+      this.localTmpStorageService.setActivePanel(PanelEnum.CENTER);
     } else {
       panelInfo.activeService = serviceType;
       panelInfo.isShow = true;
+      this.localTmpStorageService.setActivePanel(panel);
     }
     this.updateState({
       [panelKey]: { ...panelInfo }
@@ -123,6 +131,9 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
     if (isActiveService) {
       newData.activeService = serviceType;
       newData.isShow = true;
+      if (this.localTmpStorageService.getState.activePanel === oldPanel) {
+        this.localTmpStorageService.setActivePanel(newPanel);
+      }
     }
     this.updateState({
       [newKey]: { ...newData }
@@ -148,8 +159,8 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
     return null;
   }
 
-  public convertPanelTypeToKey(panelType: PanelEnum) {
-    let key: keyof LocalStorageInterface;
+  public convertPanelTypeToKey(panelType: PanelEnum): KeysOfType<LocalStorageInterface, LocalPanelInterface> {
+    let key: KeysOfType<LocalStorageInterface, LocalPanelInterface>;
     switch (panelType) {
       case PanelEnum.LEFT: {
         key = 'leftPanel';

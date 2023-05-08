@@ -21,6 +21,7 @@ export class ButtonServiceComponent implements OnInit {
   @Input() public panelType: PanelEnum;
 
   public panelInfo$: Observable<LocalPanelInterface>;
+  public activePanel$: Observable<PanelEnum>;
 
   public readonly serviceInfo: Record<ServiceTypeEnum, { src: string; tooltip: string }> = {
     [ServiceTypeEnum.PROJECT]: {
@@ -37,6 +38,7 @@ export class ButtonServiceComponent implements OnInit {
   public ngOnInit() {
     const keyPanel = this.localStorageService.convertPanelTypeToKey(this.panelType);
     this.panelInfo$ = this.localStorageService.select((state) => state[keyPanel]);
+    this.activePanel$ = this.localTmpStorageService.select((state) => state.activePanel);
   }
 
   public dragStart() {

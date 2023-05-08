@@ -1,5 +1,6 @@
 export enum PanelEnum {
   LEFT = 'LEFT',
   RIGHT = 'RIGHT',
-  BOTTOM = 'BOTTOM'
+  BOTTOM = 'BOTTOM',
+  CENTER = 'CENTER'
 }

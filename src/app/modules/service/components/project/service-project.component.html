@@ -9,7 +9,11 @@
     <ng-template #fileItem let-item="item" let-level="level">
       <ng-container *ngIf="toItem(item) as item">
         <div (click)="setSelectedItem(item)" (contextmenu)="toggleContextMenu($event, item)">
-          <div class="mx-3 border-round-md" [class.surface-600]="(selectedItem$ | async)?.fullPath === item.fullPath">
+          <div
+            class="mx-3 border-round-md"
+            [class.surface-600]="(selectedItem$ | async)?.fullPath === item.fullPath && (activePanel$ | async) !== panel"
+            [class.bg-blue-selected-item]="(selectedItem$ | async)?.fullPath === item.fullPath && (activePanel$ | async) === panel"
+          >
             <div class="flex align-items-center gap-1 py-1" [ngStyle]="{ 'margin-left.px': 14 * level }">
               <div>
                 <i
