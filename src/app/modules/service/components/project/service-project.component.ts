@@ -6,6 +6,7 @@ import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
+import { Tooltip } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
 import { IpcChannelEnum } from '../../../../../../libs/enums/ipc.channel.enum';
 import { ServiceProjectItemInterface } from '../../../../../../libs/interfaces/service.project.item.interface';
@@ -19,7 +20,7 @@ import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 import { ParseFormErrorToStringPipe } from '../../../../shared/pipes/parse-form-error-to-string.pipe';
 import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
-import { ServiceProjectNewFileNameValidator } from '../../validators/service.project.new.file.name.validator';
+import { ServiceProjectNewNameValidator } from '../../validators/service.project.new.name.validator';
 
 @Component({
   standalone: true,
@@ -43,6 +44,7 @@ import { ServiceProjectNewFileNameValidator } from '../../validators/service.pro
 })
 export class ServiceProjectComponent implements OnInit {
   @ViewChild('contextMenu') public contextMenu: ContextMenu;
+  @ViewChild(Tooltip) tooltip: Tooltip;
 
   public openDirectory$: Observable<string>;
   public files$: Observable<ServiceProjectItemInterface[]>;
@@ -56,8 +58,7 @@ export class ServiceProjectComponent implements OnInit {
   public formDialog: FormGroup<{ name: FormControl<string> }>;
   public directoryErrorsForm: Record<string, string> = {
     minlength: 'Введите название',
-    existsFile: 'Файл с этим названием уже существует',
-    existsDirectory: 'Папка с этим названием уже существует'
+    exists: 'Это название уже занято'
   };
 
   public contextMenuItems: MenuItem[];
@@ -67,12 +68,12 @@ export class ServiceProjectComponent implements OnInit {
     private readonly localStorageService: LocalStorageService,
     private readonly electronService: ElectronService,
     private readonly serviceProjectService: ServiceProjectService,
-    private readonly serviceProjectNewFileNameValidator: ServiceProjectNewFileNameValidator
+    private readonly serviceProjectNewFileNameValidator: ServiceProjectNewNameValidator
   ) {}
 
   public ngOnInit() {
     this.formDialog = new FormGroup<{ name: FormControl<string> }>({
-      name: new FormControl('', [Validators.minLength(1), this.serviceProjectNewFileNameValidator.bind()])
+      name: new FormControl('', [Validators.required, this.serviceProjectNewFileNameValidator.bind()])
     });
 
     this.contextMenuItems = [
@@ -209,6 +210,10 @@ export class ServiceProjectComponent implements OnInit {
     console.log(this.formDialog);
     if (this.formDialog.valid) {
     }
+  }
+
+  public onDragEndDialog() {
+    this.tooltip.activate();
   }
 
   private hideDialog() {

@@ -63,14 +63,26 @@ img {
   border: 2px dashed rgb(51, 174, 255);
 }
 
-.p-tooltip-text {
-  background-color: var(--gray-600) !important;
-  padding: 0.6rem !important;
-  border-radius: 0.375rem !important;
-}
+.p-tooltip {
+  max-width: fit-content;
 
-.p-tooltip-arrow {
-  display: none !important;
+  &.is-error {
+    .p-tooltip-text {
+      background-color: #9b3b41 !important;
+      white-space: nowrap;
+      width: 100%;
+    }
+  }
+
+  .p-tooltip-text {
+    background-color: var(--gray-600) !important;
+    border-radius: 0.375rem !important;
+    padding: 0.6rem !important;
+  }
+
+  .p-tooltip-arrow {
+    display: none !important;
+  }
 }
 
 .p-splitter-gutter {
