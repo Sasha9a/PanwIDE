@@ -43,7 +43,7 @@ const generateFileInfo = async (path: string) => {
 
 const parseFiles = async (path: string, info: ServiceProjectItemInterface[]) => {
   const pathStat = fs.statSync(path);
-  const isWin = path.includes('\\');
+  const isWin = process.platform === 'win32';
 
   if (pathStat) {
     const dirName = path.slice(path.lastIndexOf(isWin ? '\\' : '/') + 1);

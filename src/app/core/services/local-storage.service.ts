@@ -13,7 +13,6 @@ import { StoreService } from './store.service';
 export class LocalStorageService extends StoreService<LocalStorageInterface> {
   protected state = new BehaviorSubject(localStorageInitialState);
   private fullPath: string;
-  public isWin: boolean;
 
   public get getState() {
     return this.state.value;
@@ -24,9 +23,9 @@ export class LocalStorageService extends StoreService<LocalStorageInterface> {
   }
 
   public loadLocalStorage(projectPath: string) {
-    this.isWin = projectPath.includes('\\');
-    const pathIde = this.isWin ? projectPath + '\\.ide' : projectPath + '/.ide';
-    this.fullPath = this.isWin ? pathIde + '\\localStorage.json' : pathIde + '/localStorage.json';
+    const isWin = this.electronService.isWin;
+    const pathIde = isWin ? projectPath + '\\.ide' : projectPath + '/.ide';
+    this.fullPath = isWin ? pathIde + '\\localStorage.json' : pathIde + '/localStorage.json';
     if (!this.electronService.fs.existsSync(pathIde)) {
       this.electronService.fs.mkdirSync(pathIde);
     }

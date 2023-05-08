@@ -207,8 +207,27 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public onClickEnterDialog() {
-    console.log(this.formDialog);
     if (this.formDialog.valid) {
+      const selectedItem = this.serviceProjectService.getState.selectedItem;
+      const isWin = this.electronService.isWin;
+      const dialogType = this.serviceProjectService.getState.dialogInfo?.dialogType;
+      const pathParent = selectedItem.isDirectory
+        ? selectedItem.fullPath
+        : selectedItem.fullPath.substring(0, selectedItem.fullPath.lastIndexOf(isWin ? '\\' : '/'));
+      const fullPath = pathParent + (isWin ? `\\${this.formDialog.get('name').value}` : `/${this.formDialog.get('name').value}`);
+
+      if (dialogType === ServiceProjectDialogTypeEnum.newDirectory) {
+        this.electronService.fs.mkdirSync(fullPath);
+      } else if (dialogType === ServiceProjectDialogTypeEnum.newFile) {
+        this.electronService.fs.openSync(fullPath, 'w+');
+      } else if (dialogType === ServiceProjectDialogTypeEnum.newPwn) {
+        this.electronService.fs.openSync(`${fullPath}.pwn`, 'w+');
+      } else if (dialogType === ServiceProjectDialogTypeEnum.newInc) {
+        this.electronService.fs.openSync(`${fullPath}.inc`, 'w+');
+      }
+
+      this.isShowDialog = false;
+      this.formDialog.reset();
     }
   }
 
@@ -216,9 +235,10 @@ export class ServiceProjectComponent implements OnInit {
     this.tooltip.activate();
   }
 
-  private hideDialog() {
+  public hideDialog() {
     if (this.isShowDialog && !this.checkedClicked) {
       this.isShowDialog = false;
+      this.formDialog.reset();
     }
   }
 }

@@ -12,7 +12,6 @@ import { StoreService } from './store.service';
 export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
   protected state = new BehaviorSubject(globalStorageInitialState);
   private readonly fullPath: string;
-  public isWin: boolean;
 
   public get getState() {
     return this.state.value;
@@ -27,10 +26,8 @@ export class GlobalStorageService extends StoreService<GlobalStorageInterface> {
     const userDataPath = this.electronService.remote.app.getPath('userData');
     if (userDataPath.includes('\\')) {
       this.fullPath = userDataPath + '\\globalStorage.json';
-      this.isWin = true;
     } else {
       this.fullPath = userDataPath + '/globalStorage.json';
-      this.isWin = false;
     }
   }
 

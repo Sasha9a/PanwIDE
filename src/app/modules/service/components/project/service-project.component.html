@@ -48,6 +48,7 @@
 
 <p-dialog
   [(visible)]="isShowDialog"
+  (onHide)="hideDialog()"
   [style]="{ width: '25rem' }"
   [closable]="false"
   [resizable]="false"

@@ -8,11 +8,12 @@ import * as fs from 'fs';
   providedIn: 'root'
 })
 export class ElectronService {
-  public ipcRenderer: typeof ipcRenderer;
-  public webFrame: typeof webFrame;
-  public childProcess: typeof childProcess;
-  public fs: typeof fs;
-  public remote: typeof remote;
+  public readonly ipcRenderer: typeof ipcRenderer;
+  public readonly webFrame: typeof webFrame;
+  public readonly childProcess: typeof childProcess;
+  public readonly fs: typeof fs;
+  public readonly remote: typeof remote;
+  public readonly isWin: boolean;
 
   public constructor() {
     if (this.isElectron) {
@@ -21,6 +22,7 @@ export class ElectronService {
       this.remote = window.require('@electron/remote');
 
       this.fs = window.require('fs');
+      this.isWin = window.process.platform === 'win32';
 
       this.childProcess = window.require('child_process');
       this.childProcess.exec('node -v', (error, stdout, stderr) => {

@@ -52,7 +52,7 @@ const generateFileInfo = (path) => __awaiter(void 0, void 0, void 0, function* (
 });
 const parseFiles = (path, info) => __awaiter(void 0, void 0, void 0, function* () {
     const pathStat = fs.statSync(path);
-    const isWin = path.includes('\\');
+    const isWin = process.platform === 'win32';
     if (pathStat) {
         const dirName = path.slice(path.lastIndexOf(isWin ? '\\' : '/') + 1);
         const objectInfo = {
