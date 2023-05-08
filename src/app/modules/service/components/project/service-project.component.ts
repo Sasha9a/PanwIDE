@@ -332,33 +332,47 @@ export class ServiceProjectComponent implements OnInit {
 
   public deleteFile() {
     const selectedItem = this.serviceProjectService.getState?.selectedItem;
-    this.electronService.fs.rmSync(selectedItem.fullPath, { recursive: true, force: true });
+    if (selectedItem) {
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        this.electronService.fs.rmSync(selectedItem.fullPath, { recursive: true, force: true });
+      }
+      this.serviceProjectService.setSelectedItem(null);
+    }
   }
 
   public renameFile() {
     const selectedItem = this.serviceProjectService.getState?.selectedItem;
+    const name = this.formDialog.get('nameRename').value;
     const newPath = selectedItem.fullPath
       .slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1)
-      .concat(this.formDialog.get('nameRename').value);
-    this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
+      .concat(name);
 
+    if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+      this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
+    }
+
+    setTimeout(() => {
+      this.serviceProjectService.setSelectedProjectItem(selectedItem.fullPath, name);
+    }, 50);
     this.isShowDialog = false;
     this.formDialog.reset();
   }
 
   private showRenameDialog() {
-    this.isShowDialog = true;
-    this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.rename });
-    this.textHeaderDialog = 'Переименование';
-    this.checkedClicked = true;
-    const name = this.serviceProjectService.getState.selectedItem?.name;
-    this.formDialog.get('nameRename').setValue(name);
-    (this.inputRenameFile?.nativeElement as HTMLInputElement)?.setSelectionRange(
-      0,
-      name.lastIndexOf('.') === -1 ? name.length : name.lastIndexOf('.')
-    );
-    setTimeout(() => {
-      this.checkedClicked = false;
-    }, 500);
+    const selectedItem = this.serviceProjectService.getState?.selectedItem;
+    if (selectedItem) {
+      this.isShowDialog = true;
+      this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.rename });
+      this.textHeaderDialog = 'Переименование';
+      this.checkedClicked = true;
+      this.formDialog.get('nameRename').setValue(selectedItem.name);
+      (this.inputRenameFile?.nativeElement as HTMLInputElement)?.setSelectionRange(
+        0,
+        selectedItem.name.lastIndexOf('.') === -1 ? selectedItem.name.length : selectedItem.name.lastIndexOf('.')
+      );
+      setTimeout(() => {
+        this.checkedClicked = false;
+      }, 500);
+    }
   }
 }
