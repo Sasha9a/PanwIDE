@@ -15,6 +15,10 @@ export class ServiceProjectRenameFileValidator {
       const item = this.serviceProjectService.getState.selectedItem;
       const dialogType = this.serviceProjectService.getState.dialogInfo?.dialogType;
       if (item && dialogType === ServiceProjectDialogTypeEnum.rename) {
+        if (!control.value) {
+          return { required: true };
+        }
+
         const pathParent = item.fullPath.substring(0, item.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/'));
         const files = this.electronService.fs.readdirSync(pathParent);
         let resultName: string = control.value || '';

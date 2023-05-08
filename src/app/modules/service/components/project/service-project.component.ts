@@ -1,6 +1,6 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, HostListener, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
@@ -52,6 +52,7 @@ import { ServiceProjectRenameFileValidator } from '../../validators/service.proj
 })
 export class ServiceProjectComponent implements OnInit {
   @ViewChild('contextMenu') public contextMenu: ContextMenu;
+  @ViewChild('inputRenameFile') public inputRenameFile: ElementRef;
   @ViewChild(Tooltip) tooltip: Tooltip;
 
   public panel: PanelEnum;
@@ -74,6 +75,8 @@ export class ServiceProjectComponent implements OnInit {
 
   public contextMenuItems: MenuItem[];
 
+  public pressed = new Set<string>();
+
   public get ServiceProjectDialogTypeEnum() {
     return ServiceProjectDialogTypeEnum;
   }
@@ -90,8 +93,8 @@ export class ServiceProjectComponent implements OnInit {
 
   public ngOnInit() {
     this.formDialog = new FormGroup<{ name: FormControl<string>; nameRename: FormControl<string> }>({
-      name: new FormControl<string>('', [Validators.required, this.serviceProjectNewFileNameValidator.bind()]),
-      nameRename: new FormControl<string>('', [Validators.required, this.serviceProjectRenameFileValidator.bind()])
+      name: new FormControl<string>('', [this.serviceProjectNewFileNameValidator.bind()]),
+      nameRename: new FormControl<string>('', [this.serviceProjectRenameFileValidator.bind()])
     });
 
     this.contextMenuItems = [
@@ -181,14 +184,7 @@ export class ServiceProjectComponent implements OnInit {
                 </div>`,
         escape: false,
         command: () => {
-          this.isShowDialog = true;
-          this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.rename });
-          this.textHeaderDialog = 'Переименование';
-          this.checkedClicked = true;
-          this.formDialog.get('nameRename').setValue(this.serviceProjectService.getState.selectedItem?.name);
-          setTimeout(() => {
-            this.checkedClicked = false;
-          }, 500);
+          this.showRenameDialog();
         }
       },
       {
@@ -234,14 +230,22 @@ export class ServiceProjectComponent implements OnInit {
     });
   }
 
+  @HostListener('window:keydown', ['$event'])
+  public onKeydown(event: KeyboardEvent) {
+    this.pressed.add(event.key);
+  }
+
   @HostListener('window:keyup', ['$event'])
   public onKeyup(event: KeyboardEvent) {
-    console.log(this.panel, this.localTmpStorageService.getState?.activePanel);
     if (this.panel === this.localTmpStorageService.getState?.activePanel) {
       if (event.key === Key.Delete) {
         this.deleteFile();
       }
+      if (this.pressed.has(Key.Shift) && this.pressed.has(Key.F6)) {
+        this.showRenameDialog();
+      }
     }
+    this.pressed.delete(event.key);
   }
 
   public onClickExternalDialog() {
@@ -304,6 +308,8 @@ export class ServiceProjectComponent implements OnInit {
       } else if (dialogType === ServiceProjectDialogTypeEnum.newInc) {
         const fd = this.electronService.fs.openSync(`${fullPath}.inc`, 'w+');
         this.electronService.fs.closeSync(fd);
+      } else if (dialogType === ServiceProjectDialogTypeEnum.rename) {
+        this.renameFile();
       }
 
       this.isShowDialog = false;
@@ -327,5 +333,32 @@ export class ServiceProjectComponent implements OnInit {
   public deleteFile() {
     const selectedItem = this.serviceProjectService.getState?.selectedItem;
     this.electronService.fs.rmSync(selectedItem.fullPath, { recursive: true, force: true });
+  }
+
+  public renameFile() {
+    const selectedItem = this.serviceProjectService.getState?.selectedItem;
+    const newPath = selectedItem.fullPath
+      .slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1)
+      .concat(this.formDialog.get('nameRename').value);
+    this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
+
+    this.isShowDialog = false;
+    this.formDialog.reset();
+  }
+
+  private showRenameDialog() {
+    this.isShowDialog = true;
+    this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.rename });
+    this.textHeaderDialog = 'Переименование';
+    this.checkedClicked = true;
+    const name = this.serviceProjectService.getState.selectedItem?.name;
+    this.formDialog.get('nameRename').setValue(name);
+    (this.inputRenameFile?.nativeElement as HTMLInputElement)?.setSelectionRange(
+      0,
+      name.lastIndexOf('.') === -1 ? name.length : name.lastIndexOf('.')
+    );
+    setTimeout(() => {
+      this.checkedClicked = false;
+    }, 500);
   }
 }

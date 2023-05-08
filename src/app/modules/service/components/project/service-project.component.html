@@ -75,6 +75,7 @@
       </p>
       <form [formGroup]="formDialog">
         <input
+          #inputRenameFile
           type="text"
           pInputText
           formControlName="nameRename"
@@ -93,7 +94,9 @@
       </p>
 
       <div class="flex gap-2 justify-content-end mt-3">
-        <button pButton class="border-round-md" [disabled]="formDialog.get('nameRename').invalid">Переименовать</button>
+        <button pButton class="border-round-md" [disabled]="formDialog.get('nameRename').invalid" (click)="renameFile()">
+          Переименовать
+        </button>
         <button pButton class="p-button-outlined-main border-round-md" (click)="hideDialog()">Отмена</button>
       </div>
     </div>

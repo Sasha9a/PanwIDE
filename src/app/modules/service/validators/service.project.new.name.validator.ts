@@ -23,6 +23,10 @@ export class ServiceProjectNewNameValidator {
           ServiceProjectDialogTypeEnum.newInc
         ].includes(dialogType)
       ) {
+        if (!control.value) {
+          return { required: true };
+        }
+
         const pathParent = item.isDirectory
           ? item.fullPath
           : item.fullPath.substring(0, item.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/'));
