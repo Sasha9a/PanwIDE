@@ -2,6 +2,7 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,6 +16,7 @@ import { ExternalEventsDirective } from '../../../../core/directives/external-ev
 import { InfiniteAutofocusDirective } from '../../../../core/directives/infinite-autofocus.directive';
 import { PanelEnum } from '../../../../core/enums/panel.enum';
 import { ServiceTypeEnum } from '../../../../core/enums/service.type.enum';
+import { ServiceProjectDialogInfoInterface } from '../../../../core/interfaces/services/service/service.project.interface';
 import { ElectronService } from '../../../../core/services/electron.service';
 import { GlobalStorageService } from '../../../../core/services/global.storage.service';
 import { LocalStorageService } from '../../../../core/services/local-storage.service';
@@ -25,6 +27,7 @@ import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 import { ParseFormErrorToStringPipe } from '../../../../shared/pipes/parse-form-error-to-string.pipe';
 import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
 import { ServiceProjectNewNameValidator } from '../../validators/service.project.new.name.validator';
+import { ServiceProjectRenameFileValidator } from '../../validators/service.project.rename.file.validator';
 
 @Component({
   standalone: true,
@@ -42,7 +45,8 @@ import { ServiceProjectNewNameValidator } from '../../validators/service.project
     InfiniteAutofocusDirective,
     ExternalEventsDirective,
     ReactiveFormsModule,
-    ParseFormErrorToStringPipe
+    ParseFormErrorToStringPipe,
+    ButtonModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -57,17 +61,22 @@ export class ServiceProjectComponent implements OnInit {
   public openedDirectories$: Observable<string[]>;
   public selectedItem$: Observable<ServiceProjectItemInterface>;
   public activePanel$: Observable<PanelEnum>;
+  public dialogInfo$: Observable<ServiceProjectDialogInfoInterface>;
 
   public isShowDialog = false;
   public textHeaderDialog: string;
   public checkedClicked = false;
 
-  public formDialog: FormGroup<{ name: FormControl<string> }>;
+  public formDialog: FormGroup<{ name: FormControl<string>; nameRename: FormControl<string> }>;
   public directoryErrorsForm: Record<string, string> = {
     exists: 'Это название уже занято'
   };
 
   public contextMenuItems: MenuItem[];
+
+  public get ServiceProjectDialogTypeEnum() {
+    return ServiceProjectDialogTypeEnum;
+  }
 
   public constructor(
     private readonly globalStorageService: GlobalStorageService,
@@ -75,12 +84,14 @@ export class ServiceProjectComponent implements OnInit {
     private readonly localTmpStorageService: LocalTmpStorageService,
     private readonly electronService: ElectronService,
     private readonly serviceProjectService: ServiceProjectService,
-    private readonly serviceProjectNewFileNameValidator: ServiceProjectNewNameValidator
+    private readonly serviceProjectNewFileNameValidator: ServiceProjectNewNameValidator,
+    private readonly serviceProjectRenameFileValidator: ServiceProjectRenameFileValidator
   ) {}
 
   public ngOnInit() {
-    this.formDialog = new FormGroup<{ name: FormControl<string> }>({
-      name: new FormControl('', [Validators.required, this.serviceProjectNewFileNameValidator.bind()])
+    this.formDialog = new FormGroup<{ name: FormControl<string>; nameRename: FormControl<string> }>({
+      name: new FormControl<string>('', [Validators.required, this.serviceProjectNewFileNameValidator.bind()]),
+      nameRename: new FormControl<string>('', [Validators.required, this.serviceProjectRenameFileValidator.bind()])
     });
 
     this.contextMenuItems = [
@@ -168,7 +179,17 @@ export class ServiceProjectComponent implements OnInit {
                   </div>
                   <p class="font-normal text-gray-300 white-space-nowrap">Shift+F6</p>
                 </div>`,
-        escape: false
+        escape: false,
+        command: () => {
+          this.isShowDialog = true;
+          this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.rename });
+          this.textHeaderDialog = 'Переименование';
+          this.checkedClicked = true;
+          this.formDialog.get('nameRename').setValue(this.serviceProjectService.getState.selectedItem?.name);
+          setTimeout(() => {
+            this.checkedClicked = false;
+          }, 500);
+        }
       },
       {
         separator: true
@@ -206,6 +227,7 @@ export class ServiceProjectComponent implements OnInit {
     this.files$ = this.serviceProjectService.select((state) => state.files);
     this.selectedItem$ = this.serviceProjectService.select((state) => state.selectedItem);
     this.activePanel$ = this.localTmpStorageService.select((state) => state.activePanel);
+    this.dialogInfo$ = this.serviceProjectService.select((state) => state.dialogInfo);
 
     this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, (event, files) => {
       this.serviceProjectService.setFiles(files);
@@ -257,6 +279,7 @@ export class ServiceProjectComponent implements OnInit {
   public clickToEscape() {
     if (this.isShowDialog) {
       this.isShowDialog = false;
+      this.formDialog.reset();
     }
   }
 
@@ -289,7 +312,9 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public onDragEndDialog() {
-    this.tooltip.activate();
+    if (this.tooltip) {
+      this.tooltip.activate();
+    }
   }
 
   public hideDialog() {

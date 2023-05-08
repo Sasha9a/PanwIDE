@@ -155,9 +155,28 @@ img {
   padding: 0 !important;
 }
 
+.p-dialog .p-dialog-header .p-dialog-header-icon {
+  color: white !important;
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+  border-radius: 0;
+
+  :hover {
+    color: #d53131 !important;
+  }
+}
+
+.p-dialog-header-close-icon {
+  width: 1.2rem !important;
+  height: 1.2rem !important;
+}
+
+.p-component-overlay {
+  background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
 .p-inputtext {
   background: var(--gray-700) !important;
-  border: none !important;
   color: white !important;
   font-weight: 300 !important;
   caret-color: white;
@@ -174,8 +193,11 @@ img {
 }
 
 .p-inputtext:not(.border-error):enabled:focus {
-  border: none !important;
   box-shadow: none !important;
+}
+
+.p-inputtext.ng-dirty.ng-invalid {
+  border-color: #1174c0;
 }
 
 .border-error {
@@ -184,4 +206,16 @@ img {
 
 .bg-blue-selected-item {
   background: #405b9b !important;
+}
+
+.p-button-outlined-main {
+  background: rgba(127, 129, 136, 0.04) !important;
+  color: #9da4ad !important;
+  border: 1px solid !important;
+
+  &:hover {
+    background: rgba(159, 159, 159, 0.1) !important;
+    color: #cccccc !important;
+    border-color: #707479 !important;
+  }
 }

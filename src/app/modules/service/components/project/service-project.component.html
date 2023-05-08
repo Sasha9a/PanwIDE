@@ -55,6 +55,7 @@
   (onHide)="hideDialog()"
   [style]="{ width: '25rem' }"
   [closable]="false"
+  [modal]="[ServiceProjectDialogTypeEnum.rename].includes($any((dialogInfo$ | async)?.dialogType))"
   [resizable]="false"
   (onDragEnd)="onDragEndDialog()"
   (keyup.escape)="clickToEscape()"
@@ -67,20 +68,61 @@
     <span class="font-medium text-white text-center w-full">{{ textHeaderDialog }}</span>
   </ng-template>
   <div class="w-full border-top-1 border-black-alpha-90"></div>
-  <form [formGroup]="formDialog">
-    <input
-      type="text"
-      pInputText
-      formControlName="name"
-      class="w-full {{ formDialog.get('name').invalid && formDialog.get('name').value ? 'border-error' : '' }}"
-      placeholder="Название"
-      appInfiniteAutofocus
-      [isModal]="true"
-      [isShowModal]="isShowDialog"
-      [pTooltip]="formDialog.get('name').errors | parseFormErrorToString : directoryErrorsForm"
-      [tooltipStyleClass]="formDialog.get('name').errors ? 'is-error' : ''"
-      tooltipEvent="focus"
-      tooltipPosition="bottom"
-    />
-  </form>
+  <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.rename">
+    <div class="p-3">
+      <p class="mb-2">
+        Переименуйте {{ (selectedItem$ | async)?.isDirectory ? 'папку' : 'файл' }} '{{ (selectedItem$ | async)?.name }}' в:
+      </p>
+      <form [formGroup]="formDialog">
+        <input
+          type="text"
+          pInputText
+          formControlName="nameRename"
+          class="w-full"
+          placeholder="Название"
+          appInfiniteAutofocus
+          [isModal]="true"
+          [isShowModal]="isShowDialog"
+        />
+      </form>
+      <p
+        *ngIf="formDialog.get('nameRename').errors && (selectedItem$ | async)?.name !== formDialog.get('nameRename').value"
+        class="text-red-400 font-medium mt-2"
+      >
+        {{ formDialog.get('nameRename').errors | parseFormErrorToString : directoryErrorsForm }}
+      </p>
+
+      <div class="flex gap-2 justify-content-end mt-3">
+        <button pButton class="border-round-md" [disabled]="formDialog.get('nameRename').invalid">Переименовать</button>
+        <button pButton class="p-button-outlined-main border-round-md" (click)="hideDialog()">Отмена</button>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container
+    *ngIf="
+      [
+        ServiceProjectDialogTypeEnum.newFile,
+        ServiceProjectDialogTypeEnum.newDirectory,
+        ServiceProjectDialogTypeEnum.newPwn,
+        ServiceProjectDialogTypeEnum.newInc
+      ].includes($any((dialogInfo$ | async)?.dialogType))
+    "
+  >
+    <form [formGroup]="formDialog">
+      <input
+        type="text"
+        pInputText
+        formControlName="name"
+        class="w-full border-none {{ formDialog.get('name').invalid && formDialog.get('name').value ? 'border-error' : '' }}"
+        placeholder="Название"
+        appInfiniteAutofocus
+        [isModal]="true"
+        [isShowModal]="isShowDialog"
+        [pTooltip]="formDialog.get('name').errors | parseFormErrorToString : directoryErrorsForm"
+        [tooltipStyleClass]="formDialog.get('name').errors ? 'is-error' : ''"
+        tooltipEvent="focus"
+        tooltipPosition="bottom"
+      />
+    </form>
+  </ng-container>
 </p-dialog>
