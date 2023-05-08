@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
 import { PanelEnum } from '../../../core/enums/panel.enum';
 import { ServiceTypeEnum } from '../../../core/enums/service.type.enum';
 import { LocalPanelInterface } from '../../../core/interfaces/local.storage.interface';
-import { GlobalDragButtonService } from '../../../core/services/global-drag-button.service';
 import { LocalStorageService } from '../../../core/services/local-storage.service';
+import { LocalTmpStorageService } from '../../../core/services/local-tmp-storage.service';
 
 @Component({
   selector: 'app-button-service',
@@ -30,7 +30,7 @@ export class ButtonServiceComponent implements OnInit {
   };
 
   public constructor(
-    private readonly globalDragButtonService: GlobalDragButtonService,
+    private readonly localTmpStorageService: LocalTmpStorageService,
     private readonly localStorageService: LocalStorageService
   ) {}
 
@@ -40,11 +40,11 @@ export class ButtonServiceComponent implements OnInit {
   }
 
   public dragStart() {
-    this.globalDragButtonService.setState(this.serviceType);
+    this.localTmpStorageService.setDragInfo({ serviceType: this.serviceType });
   }
 
   public dragEnd() {
-    this.globalDragButtonService.setState(null);
+    this.localTmpStorageService.setDragInfo({ serviceType: null });
   }
 
   public clickButton() {

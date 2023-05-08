@@ -3,10 +3,10 @@ import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { DragDropModule } from 'primeng/dragdrop';
 import { Observable } from 'rxjs';
 import { PanelEnum } from '../../core/enums/panel.enum';
-import { ServiceTypeEnum } from '../../core/enums/service.type.enum';
 import { LocalPanelInterface } from '../../core/interfaces/local.storage.interface';
-import { GlobalDragButtonService } from '../../core/services/global-drag-button.service';
+import { LocalTmpStorageDragInfoInterface } from '../../core/interfaces/local.tmp.storage.interface';
 import { LocalStorageService } from '../../core/services/local-storage.service';
+import { LocalTmpStorageService } from '../../core/services/local-tmp-storage.service';
 import { ButtonServiceComponent } from '../../shared/dumbs/button-service/button-service.component';
 
 @Component({
@@ -18,7 +18,7 @@ import { ButtonServiceComponent } from '../../shared/dumbs/button-service/button
 })
 export class RightPanelComponent implements OnInit {
   public rightPanel$: Observable<LocalPanelInterface>;
-  public dragService$: Observable<ServiceTypeEnum>;
+  public dragInfo$: Observable<LocalTmpStorageDragInfoInterface>;
 
   public get PanelEnum() {
     return PanelEnum;
@@ -26,18 +26,19 @@ export class RightPanelComponent implements OnInit {
 
   public constructor(
     private readonly localStorageService: LocalStorageService,
-    private readonly globalDragButtonService: GlobalDragButtonService
+    private readonly localTmpStorageService: LocalTmpStorageService
   ) {}
 
   public ngOnInit() {
     this.rightPanel$ = this.localStorageService.select((state) => state.rightPanel);
-    this.dragService$ = this.globalDragButtonService.select((state) => state.serviceType);
+    this.dragInfo$ = this.localTmpStorageService.select((state) => state.dragInfo);
   }
 
   public dropService(panel: PanelEnum, index: number) {
-    if (this.globalDragButtonService.getState?.serviceType) {
-      this.localStorageService.changeService(panel, this.globalDragButtonService.getState?.serviceType, index);
-      this.globalDragButtonService.setState(null);
+    const serviceType = this.localTmpStorageService.getState?.dragInfo?.serviceType;
+    if (serviceType) {
+      this.localStorageService.changeService(panel, serviceType, index);
+      this.localTmpStorageService.setDragInfo({ serviceType: null });
     }
   }
 }

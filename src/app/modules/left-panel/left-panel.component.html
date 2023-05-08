@@ -2,18 +2,18 @@
   <div style="height: 50%">
     <div class="p-2">
       <ng-container *ngFor="let service of (leftPanel$ | async)?.services; let index = index">
-        <ng-container *ngIf="index === 0 && service !== (dragService$ | async) && dragService$ | async">
+        <ng-container *ngIf="index === 0 && service !== (dragInfo$ | async)?.serviceType && (dragInfo$ | async)?.serviceType">
           <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.LEFT, index: index }"></ng-template>
         </ng-container>
 
         <app-button-service [serviceType]="service" [panelType]="PanelEnum.LEFT"></app-button-service>
 
-        <ng-container *ngIf="index !== 0 && service !== (dragService$ | async) && dragService$ | async">
+        <ng-container *ngIf="index !== 0 && service !== (dragInfo$ | async)?.serviceType && (dragInfo$ | async)?.serviceType">
           <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.LEFT, index: index }"></ng-template>
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="!(leftPanel$ | async)?.services?.length && dragService$ | async">
+      <ng-container *ngIf="!(leftPanel$ | async)?.services?.length && (dragInfo$ | async)?.serviceType">
         <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.LEFT, index: 0 }"></ng-template>
       </ng-container>
     </div>
@@ -23,7 +23,7 @@
     <div class="absolute bottom-0 w-full">
       <div class="p-2">
         <ng-container *ngFor="let service of (bottomPanel$ | async)?.services; let index = index">
-          <ng-container *ngIf="index === 0 && service !== (dragService$ | async) && dragService$ | async">
+          <ng-container *ngIf="index === 0 && service !== (dragInfo$ | async)?.serviceType && (dragInfo$ | async)?.serviceType">
             <ng-template
               [ngTemplateOutlet]="droppedZone"
               [ngTemplateOutletContext]="{ panel: PanelEnum.BOTTOM, index: index }"
@@ -32,7 +32,7 @@
 
           <app-button-service [serviceType]="service" [panelType]="PanelEnum.BOTTOM"></app-button-service>
 
-          <ng-container *ngIf="index !== 0 && service !== (dragService$ | async) && dragService$ | async">
+          <ng-container *ngIf="index !== 0 && service !== (dragInfo$ | async)?.serviceType && (dragInfo$ | async)?.serviceType">
             <ng-template
               [ngTemplateOutlet]="droppedZone"
               [ngTemplateOutletContext]="{ panel: PanelEnum.BOTTOM, index: index }"
@@ -40,7 +40,7 @@
           </ng-container>
         </ng-container>
 
-        <ng-container *ngIf="!(bottomPanel$ | async)?.services?.length && dragService$ | async">
+        <ng-container *ngIf="!(bottomPanel$ | async)?.services?.length && (dragInfo$ | async)?.serviceType">
           <ng-template [ngTemplateOutlet]="droppedZone" [ngTemplateOutletContext]="{ panel: PanelEnum.BOTTOM, index: 0 }"></ng-template>
         </ng-container>
       </div>
