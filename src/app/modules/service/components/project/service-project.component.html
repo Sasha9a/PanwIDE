@@ -11,8 +11,8 @@
         <div (click)="setSelectedItem(item)" (contextmenu)="toggleContextMenu($event, item)">
           <div
             class="mx-3 border-round-md"
-            [class.surface-600]="(selectedItem$ | async)?.fullPath === item.fullPath && (activePanel$ | async) !== panel"
-            [class.bg-blue-selected-item]="(selectedItem$ | async)?.fullPath === item.fullPath && (activePanel$ | async) === panel"
+            [class.surface-600]="(selectedItems$ | async | isSelectProjectItem : item) && (activePanel$ | async) !== panel"
+            [class.bg-blue-selected-item]="(selectedItems$ | async | isSelectProjectItem : item) && (activePanel$ | async) === panel"
           >
             <div class="flex align-items-center gap-1 py-1" [ngStyle]="{ 'margin-left.px': 14 * level }">
               <div>
@@ -71,7 +71,7 @@
   <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.rename">
     <div class="p-3">
       <p class="mb-2">
-        Переименуйте {{ (selectedItem$ | async)?.isDirectory ? 'папку' : 'файл' }} '{{ (selectedItem$ | async)?.name }}' в:
+        Переименуйте {{ (selectedItems$ | async)?.[0]?.isDirectory ? 'папку' : 'файл' }} '{{ (selectedItems$ | async)?.[0]?.name }}' в:
       </p>
       <form [formGroup]="formDialog">
         <input
@@ -87,7 +87,7 @@
         />
       </form>
       <p
-        *ngIf="formDialog.get('nameRename').errors && (selectedItem$ | async)?.name !== formDialog.get('nameRename').value"
+        *ngIf="formDialog.get('nameRename').errors && (selectedItems$ | async)?.[0]?.name !== formDialog.get('nameRename').value"
         class="text-red-400 font-medium mt-2"
       >
         {{ formDialog.get('nameRename').errors | parseFormErrorToString : directoryErrorsForm }}

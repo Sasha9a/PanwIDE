@@ -7,6 +7,7 @@ export interface ServiceProjectDialogInfoInterface {
 
 export interface ServiceProjectInterface {
   files: ServiceProjectItemInterface[];
-  selectedItem: ServiceProjectItemInterface;
+  filesFlat: ServiceProjectItemInterface[];
+  selectedItems: ServiceProjectItemInterface[];
   dialogInfo: ServiceProjectDialogInfoInterface;
 }

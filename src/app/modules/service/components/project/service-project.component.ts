@@ -23,6 +23,7 @@ import { LocalStorageService } from '../../../../core/services/local-storage.ser
 import { LocalTmpStorageService } from '../../../../core/services/local-tmp-storage.service';
 import { ServiceProjectService } from '../../../../core/services/service/service-project.service';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
+import { IsSelectProjectItemPipe } from '../../../../shared/pipes/is-select-project-item.pipe';
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 import { ParseFormErrorToStringPipe } from '../../../../shared/pipes/parse-form-error-to-string.pipe';
 import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
@@ -46,7 +47,8 @@ import { ServiceProjectRenameFileValidator } from '../../validators/service.proj
     ExternalEventsDirective,
     ReactiveFormsModule,
     ParseFormErrorToStringPipe,
-    ButtonModule
+    ButtonModule,
+    IsSelectProjectItemPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -60,7 +62,7 @@ export class ServiceProjectComponent implements OnInit {
   public openDirectory$: Observable<string>;
   public files$: Observable<ServiceProjectItemInterface[]>;
   public openedDirectories$: Observable<string[]>;
-  public selectedItem$: Observable<ServiceProjectItemInterface>;
+  public selectedItems$: Observable<ServiceProjectItemInterface[]>;
   public activePanel$: Observable<PanelEnum>;
   public dialogInfo$: Observable<ServiceProjectDialogInfoInterface>;
 
@@ -73,7 +75,7 @@ export class ServiceProjectComponent implements OnInit {
     exists: 'Это название уже занято'
   };
 
-  public contextMenuItems: MenuItem[];
+  public contextMenuItems: MenuItem[] = [];
 
   public pressed = new Set<string>();
 
@@ -97,6 +99,204 @@ export class ServiceProjectComponent implements OnInit {
       nameRename: new FormControl<string>('', [this.serviceProjectRenameFileValidator.bind()])
     });
 
+    this.panel = this.localStorageService.getPanelFromService(ServiceTypeEnum.PROJECT);
+    this.localTmpStorageService
+      .select((state) => state.dragInfo)
+      .subscribe(() => {
+        this.panel = this.localStorageService.getPanelFromService(ServiceTypeEnum.PROJECT);
+      });
+
+    this.openDirectory$ = this.globalStorageService.select((state) => state.openDirectory);
+    this.openDirectory$.subscribe((path) => {
+      if (path) {
+        this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_START_LOAD_FILES, path).catch(console.error);
+      }
+    });
+
+    this.openedDirectories$ = this.localStorageService.select((state) => state.openedDirectories);
+    this.files$ = this.serviceProjectService.select((state) => state.files);
+    this.selectedItems$ = this.serviceProjectService.select((state) => state.selectedItems);
+    this.activePanel$ = this.localTmpStorageService.select((state) => state.activePanel);
+    this.dialogInfo$ = this.serviceProjectService.select((state) => state.dialogInfo);
+
+    this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, (event, files) => {
+      this.serviceProjectService.setFiles(files);
+    });
+
+    this.setContextMenuItems();
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  public onKeydown(event: KeyboardEvent) {
+    this.pressed.add(event.key);
+  }
+
+  @HostListener('window:keyup', ['$event'])
+  public onKeyup(event: KeyboardEvent) {
+    if (this.panel === this.localTmpStorageService.getState?.activePanel) {
+      if (event.key === Key.Delete) {
+        this.deleteFile();
+      }
+      if (this.pressed.has(Key.Shift) && this.pressed.has(Key.F6)) {
+        this.showRenameDialog();
+      }
+    }
+    this.pressed.delete(event.key);
+  }
+
+  public onClickExternalDialog() {
+    this.hideDialog();
+  }
+
+  public onContextMenuExternalDialog() {
+    this.hideDialog();
+  }
+
+  public toItem(item: any): ServiceProjectItemInterface {
+    return item as ServiceProjectItemInterface;
+  }
+
+  public toggleOpenedDirectory(fullPath: string) {
+    let openedDirectory = this.localStorageService.getState.openedDirectories;
+    if (openedDirectory.includes(fullPath)) {
+      openedDirectory = openedDirectory.filter((path) => path !== fullPath);
+    } else {
+      openedDirectory.push(fullPath);
+    }
+    this.contextMenu.hide();
+    this.localStorageService.setOpenedDirectory(openedDirectory);
+    this.serviceProjectService.updateFilesFlat();
+  }
+
+  public setSelectedItem(item: ServiceProjectItemInterface) {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    if (this.pressed.has(Key.Shift)) {
+      const filesFlat = this.serviceProjectService.getState.filesFlat;
+      const itemIndex = filesFlat?.findIndex((ff) => item.fullPath === ff.fullPath);
+
+      if (!selectedItems?.length) {
+        this.serviceProjectService.setSelectedItems([item]);
+      } else {
+        const selectedItemIndex = filesFlat?.findIndex((ff) => selectedItems[selectedItems.length - 1].fullPath === ff.fullPath);
+        let minIndex: number;
+        let maxIndex: number;
+
+        if (selectedItemIndex > itemIndex) {
+          minIndex = itemIndex;
+          maxIndex = selectedItemIndex;
+        } else {
+          minIndex = selectedItemIndex;
+          maxIndex = itemIndex;
+        }
+
+        const newSelectedItems: ServiceProjectItemInterface[] = [];
+        filesFlat.forEach((fileFlat, index) => {
+          if (index >= minIndex && index <= maxIndex) {
+            newSelectedItems.push(fileFlat);
+          }
+        });
+        this.serviceProjectService.setSelectedItems([...newSelectedItems]);
+      }
+    } else if (this.pressed.has(Key.Control)) {
+      this.serviceProjectService.setSelectedItems([...selectedItems, item]);
+    } else {
+      this.serviceProjectService.setSelectedItems([item]);
+    }
+  }
+
+  public toggleContextMenu(event: MouseEvent, item: ServiceProjectItemInterface) {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    if (!selectedItems.some((selectedItem) => selectedItem.fullPath === item.fullPath)) {
+      this.serviceProjectService.setSelectedItems([item]);
+    }
+    this.setContextMenuItems();
+    this.contextMenu.show(event);
+  }
+
+  public clickToEscape() {
+    if (this.isShowDialog) {
+      this.isShowDialog = false;
+      this.formDialog.reset();
+    }
+  }
+
+  public onClickEnterDialog() {
+    if (this.formDialog.valid) {
+      const selectedItems = this.serviceProjectService.getState.selectedItems;
+      const isWin = this.electronService.isWin;
+      const dialogType = this.serviceProjectService.getState.dialogInfo?.dialogType;
+      for (const selectedItem of selectedItems) {
+        const pathParent = selectedItem.isDirectory
+          ? selectedItem.fullPath
+          : selectedItem.fullPath.substring(0, selectedItem.fullPath.lastIndexOf(isWin ? '\\' : '/'));
+        const fullPath = pathParent + (isWin ? `\\${this.formDialog.get('name').value}` : `/${this.formDialog.get('name').value}`);
+
+        if (dialogType === ServiceProjectDialogTypeEnum.newDirectory) {
+          this.electronService.fs.mkdirSync(fullPath);
+        } else if (dialogType === ServiceProjectDialogTypeEnum.newFile) {
+          const fd = this.electronService.fs.openSync(fullPath, 'w+');
+          this.electronService.fs.closeSync(fd);
+        } else if (dialogType === ServiceProjectDialogTypeEnum.newPwn) {
+          const fd = this.electronService.fs.openSync(`${fullPath}.pwn`, 'w+');
+          this.electronService.fs.closeSync(fd);
+        } else if (dialogType === ServiceProjectDialogTypeEnum.newInc) {
+          const fd = this.electronService.fs.openSync(`${fullPath}.inc`, 'w+');
+          this.electronService.fs.closeSync(fd);
+        } else if (dialogType === ServiceProjectDialogTypeEnum.rename) {
+          this.renameFile();
+        }
+      }
+
+      this.isShowDialog = false;
+      this.formDialog.reset();
+    }
+  }
+
+  public onDragEndDialog() {
+    if (this.tooltip) {
+      this.tooltip.activate();
+    }
+  }
+
+  public hideDialog() {
+    if (this.isShowDialog && !this.checkedClicked) {
+      this.isShowDialog = false;
+      this.formDialog.reset();
+    }
+  }
+
+  public deleteFile() {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    for (const selectedItem of selectedItems) {
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        this.electronService.fs.rmSync(selectedItem.fullPath, { recursive: true, force: true });
+      }
+    }
+    this.serviceProjectService.setSelectedItems([]);
+  }
+
+  public renameFile() {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    const name = this.formDialog.get('nameRename').value;
+    if (selectedItems?.length) {
+      const selectedItem = selectedItems[0];
+      const newPath = selectedItem.fullPath
+        .slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1)
+        .concat(name);
+
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
+      }
+
+      setTimeout(() => {
+        this.serviceProjectService.setSelectedProjectItem(selectedItem.fullPath, name);
+      }, 50);
+    }
+    this.isShowDialog = false;
+    this.formDialog.reset();
+  }
+
+  private setContextMenuItems() {
     this.contextMenuItems = [
       {
         label: 'Добавить',
@@ -183,12 +383,14 @@ export class ServiceProjectComponent implements OnInit {
                   <p class="font-normal text-gray-300 white-space-nowrap">Shift+F6</p>
                 </div>`,
         escape: false,
+        visible: this.serviceProjectService.getState.selectedItems?.length === 1,
         command: () => {
           this.showRenameDialog();
         }
       },
       {
-        separator: true
+        separator: true,
+        visible: this.serviceProjectService.getState.selectedItems?.length === 1
       },
       {
         label: `<div class="flex justify-content-between gap-2">
@@ -204,163 +406,12 @@ export class ServiceProjectComponent implements OnInit {
         }
       }
     ];
-
-    this.panel = this.localStorageService.getPanelFromService(ServiceTypeEnum.PROJECT);
-    this.localTmpStorageService
-      .select((state) => state.dragInfo)
-      .subscribe(() => {
-        this.panel = this.localStorageService.getPanelFromService(ServiceTypeEnum.PROJECT);
-      });
-
-    this.openDirectory$ = this.globalStorageService.select((state) => state.openDirectory);
-    this.openDirectory$.subscribe((path) => {
-      if (path) {
-        this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_START_LOAD_FILES, path).catch(console.error);
-      }
-    });
-
-    this.openedDirectories$ = this.localStorageService.select((state) => state.openedDirectories);
-    this.files$ = this.serviceProjectService.select((state) => state.files);
-    this.selectedItem$ = this.serviceProjectService.select((state) => state.selectedItem);
-    this.activePanel$ = this.localTmpStorageService.select((state) => state.activePanel);
-    this.dialogInfo$ = this.serviceProjectService.select((state) => state.dialogInfo);
-
-    this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_GET_FILES, (event, files) => {
-      this.serviceProjectService.setFiles(files);
-    });
-  }
-
-  @HostListener('window:keydown', ['$event'])
-  public onKeydown(event: KeyboardEvent) {
-    this.pressed.add(event.key);
-  }
-
-  @HostListener('window:keyup', ['$event'])
-  public onKeyup(event: KeyboardEvent) {
-    if (this.panel === this.localTmpStorageService.getState?.activePanel) {
-      if (event.key === Key.Delete) {
-        this.deleteFile();
-      }
-      if (this.pressed.has(Key.Shift) && this.pressed.has(Key.F6)) {
-        this.showRenameDialog();
-      }
-    }
-    this.pressed.delete(event.key);
-  }
-
-  public onClickExternalDialog() {
-    this.hideDialog();
-  }
-
-  public onContextMenuExternalDialog() {
-    this.hideDialog();
-  }
-
-  public toItem(item: any): ServiceProjectItemInterface {
-    return item as ServiceProjectItemInterface;
-  }
-
-  public toggleOpenedDirectory(fullPath: string) {
-    let openedDirectory = this.localStorageService.getState.openedDirectories;
-    if (openedDirectory.includes(fullPath)) {
-      openedDirectory = openedDirectory.filter((path) => path !== fullPath);
-    } else {
-      openedDirectory.push(fullPath);
-    }
-    this.contextMenu.hide();
-    this.localStorageService.setOpenedDirectory(openedDirectory);
-  }
-
-  public setSelectedItem(item: ServiceProjectItemInterface) {
-    this.serviceProjectService.setSelectedItem(item);
-  }
-
-  public toggleContextMenu(event: MouseEvent, item: ServiceProjectItemInterface) {
-    this.serviceProjectService.setSelectedItem(item);
-    this.contextMenu.show(event);
-  }
-
-  public clickToEscape() {
-    if (this.isShowDialog) {
-      this.isShowDialog = false;
-      this.formDialog.reset();
-    }
-  }
-
-  public onClickEnterDialog() {
-    if (this.formDialog.valid) {
-      const selectedItem = this.serviceProjectService.getState.selectedItem;
-      const isWin = this.electronService.isWin;
-      const dialogType = this.serviceProjectService.getState.dialogInfo?.dialogType;
-      const pathParent = selectedItem.isDirectory
-        ? selectedItem.fullPath
-        : selectedItem.fullPath.substring(0, selectedItem.fullPath.lastIndexOf(isWin ? '\\' : '/'));
-      const fullPath = pathParent + (isWin ? `\\${this.formDialog.get('name').value}` : `/${this.formDialog.get('name').value}`);
-
-      if (dialogType === ServiceProjectDialogTypeEnum.newDirectory) {
-        this.electronService.fs.mkdirSync(fullPath);
-      } else if (dialogType === ServiceProjectDialogTypeEnum.newFile) {
-        const fd = this.electronService.fs.openSync(fullPath, 'w+');
-        this.electronService.fs.closeSync(fd);
-      } else if (dialogType === ServiceProjectDialogTypeEnum.newPwn) {
-        const fd = this.electronService.fs.openSync(`${fullPath}.pwn`, 'w+');
-        this.electronService.fs.closeSync(fd);
-      } else if (dialogType === ServiceProjectDialogTypeEnum.newInc) {
-        const fd = this.electronService.fs.openSync(`${fullPath}.inc`, 'w+');
-        this.electronService.fs.closeSync(fd);
-      } else if (dialogType === ServiceProjectDialogTypeEnum.rename) {
-        this.renameFile();
-      }
-
-      this.isShowDialog = false;
-      this.formDialog.reset();
-    }
-  }
-
-  public onDragEndDialog() {
-    if (this.tooltip) {
-      this.tooltip.activate();
-    }
-  }
-
-  public hideDialog() {
-    if (this.isShowDialog && !this.checkedClicked) {
-      this.isShowDialog = false;
-      this.formDialog.reset();
-    }
-  }
-
-  public deleteFile() {
-    const selectedItem = this.serviceProjectService.getState?.selectedItem;
-    if (selectedItem) {
-      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-        this.electronService.fs.rmSync(selectedItem.fullPath, { recursive: true, force: true });
-      }
-      this.serviceProjectService.setSelectedItem(null);
-    }
-  }
-
-  public renameFile() {
-    const selectedItem = this.serviceProjectService.getState?.selectedItem;
-    const name = this.formDialog.get('nameRename').value;
-    const newPath = selectedItem.fullPath
-      .slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1)
-      .concat(name);
-
-    if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-      this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
-    }
-
-    setTimeout(() => {
-      this.serviceProjectService.setSelectedProjectItem(selectedItem.fullPath, name);
-    }, 50);
-    this.isShowDialog = false;
-    this.formDialog.reset();
   }
 
   private showRenameDialog() {
-    const selectedItem = this.serviceProjectService.getState?.selectedItem;
-    if (selectedItem) {
+    const selectedItems = this.serviceProjectService.getState?.selectedItems;
+    if (selectedItems?.length === 1) {
+      const selectedItem = selectedItems[0];
       this.isShowDialog = true;
       this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.rename });
       this.textHeaderDialog = 'Переименование';

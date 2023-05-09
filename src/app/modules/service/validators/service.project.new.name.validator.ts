@@ -12,10 +12,10 @@ export class ServiceProjectNewNameValidator {
 
   public bind(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors => {
-      const item = this.serviceProjectService.getState.selectedItem;
+      const selectedItems = this.serviceProjectService.getState.selectedItems;
       const dialogType = this.serviceProjectService.getState.dialogInfo?.dialogType;
       if (
-        item &&
+        selectedItems?.length &&
         [
           ServiceProjectDialogTypeEnum.newFile,
           ServiceProjectDialogTypeEnum.newDirectory,
@@ -27,10 +27,13 @@ export class ServiceProjectNewNameValidator {
           return { required: true };
         }
 
-        const pathParent = item.isDirectory
-          ? item.fullPath
-          : item.fullPath.substring(0, item.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/'));
-        const files = this.electronService.fs.readdirSync(pathParent);
+        let files: string[] = [];
+        for (const selectedItem of selectedItems) {
+          const pathParent = selectedItem.isDirectory
+            ? selectedItem.fullPath
+            : selectedItem.fullPath.substring(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/'));
+          files.push(...this.electronService.fs.readdirSync(pathParent));
+        }
         let resultName: string = control.value || '';
         if (dialogType === ServiceProjectDialogTypeEnum.newPwn) {
           resultName = resultName.concat('.pwn');
