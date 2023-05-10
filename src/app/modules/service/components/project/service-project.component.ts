@@ -1,5 +1,14 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  Renderer2,
+  ViewChild
+} from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -59,6 +68,7 @@ import { ServiceProjectRenameFileValidator } from '../../validators/service.proj
 export class ServiceProjectComponent implements OnInit {
   @ViewChild('contextMenu') public contextMenu: ContextMenu;
   @ViewChild('inputRenameFile') public inputRenameFile: ElementRef;
+  @ViewChild('dragFileInfoTooltip') public dragFileInfoTooltip: ElementRef;
   @ViewChild(Tooltip) tooltip: Tooltip;
 
   public panel: PanelEnum;
@@ -97,7 +107,8 @@ export class ServiceProjectComponent implements OnInit {
     private readonly serviceProjectService: ServiceProjectService,
     private readonly serviceProjectNewFileNameValidator: ServiceProjectNewNameValidator,
     private readonly serviceProjectRenameFileValidator: ServiceProjectRenameFileValidator,
-    private readonly cdRef: ChangeDetectorRef
+    private readonly cdRef: ChangeDetectorRef,
+    private readonly renderer2: Renderer2
   ) {}
 
   public ngOnInit() {
@@ -310,6 +321,11 @@ export class ServiceProjectComponent implements OnInit {
   public onDragEndFile() {
     this.isDragFile = false;
     this.cdRef.detectChanges();
+  }
+
+  public onDragFile(event: DragEvent) {
+    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'top', event.screenY + 'px');
+    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'left', event.screenX + 'px');
   }
 
   private setContextMenuItems() {
