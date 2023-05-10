@@ -197,7 +197,7 @@ export class ServiceProjectComponent implements OnInit {
         });
         this.serviceProjectService.setSelectedItems([...newSelectedItems]);
       }
-    } else if (this.pressed.has(Key.Control)) {
+    } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta)) {
       this.serviceProjectService.setSelectedItems([...selectedItems, item]);
     } else {
       this.serviceProjectService.setSelectedItems([item]);
@@ -288,9 +288,8 @@ export class ServiceProjectComponent implements OnInit {
         this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
       }
 
-      setTimeout(() => {
-        this.serviceProjectService.setSelectedProjectItem(selectedItem.fullPath, name);
-      }, 50);
+      selectedItem.fullPath = newPath;
+      this.serviceProjectService.setSelectedItems(selectedItems);
     }
     this.isShowDialog = false;
     this.formDialog.reset();
@@ -380,7 +379,9 @@ export class ServiceProjectComponent implements OnInit {
                     <div class="w-1rem"></div>
                     Переименовать
                   </div>
-                  <p class="font-normal text-gray-300 white-space-nowrap">Shift+F6</p>
+                  <p class="font-normal text-gray-300 white-space-nowrap">
+                    ${this.electronService.isWin ? 'Shift+F6' : '⇧F6'}
+                  </p>
                 </div>`,
         escape: false,
         visible: this.serviceProjectService.getState.selectedItems?.length === 1,
@@ -398,7 +399,9 @@ export class ServiceProjectComponent implements OnInit {
                     <div class="w-1rem"></div>
                     Удалить
                   </div>
-                  <p class="font-normal text-gray-300 white-space-nowrap">Delete</p>
+                  <p class="font-normal text-gray-300 white-space-nowrap">
+                  ${this.electronService.isWin ? 'Delete' : '⌦'}
+                  </p>
                 </div>`,
         escape: false,
         command: () => {

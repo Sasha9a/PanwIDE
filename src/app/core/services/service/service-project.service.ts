@@ -36,6 +36,7 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
   public setFiles(files: ServiceProjectItemInterface[]) {
     this.updateState({ files: [...files] });
     this.updateFilesFlat();
+    this.checkSelectedItems();
   }
 
   public setSelectedItems(selectedItems: ServiceProjectItemInterface[]) {
@@ -44,6 +45,18 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
 
   public setDialogInfo(dialogInfo: ServiceProjectDialogInfoInterface) {
     this.updateState({ dialogInfo: { ...dialogInfo } });
+  }
+
+  public checkSelectedItems() {
+    const selectedItems = this.getState.selectedItems;
+    const filesFlat = this.getState.filesFlat;
+    const newSelectedItems: ServiceProjectItemInterface[] = [];
+    for (const selectedItem of selectedItems) {
+      if (filesFlat.findIndex((ff) => ff.fullPath === selectedItem.fullPath) !== -1) {
+        newSelectedItems.push(selectedItem);
+      }
+    }
+    this.updateState({ selectedItems: [...newSelectedItems] });
   }
 
   public updateFilesFlat() {
@@ -69,26 +82,5 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
       parseFile(file);
     }
     this.updateState({ filesFlat: [...filesFlat] });
-  }
-
-  public setSelectedProjectItem(oldPath: string, newName: string) {
-    const newPath = oldPath.slice(0, oldPath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1).concat(newName);
-    const item = this.getProjectItemFromPath(newPath, this.getState.files[0]);
-    if (item) {
-      this.setSelectedItems([item]);
-    }
-  }
-
-  public getProjectItemFromPath(path: string, item: ServiceProjectItemInterface) {
-    if (item.fullPath === path) {
-      return item;
-    }
-    for (const child of item.children) {
-      const childItem = this.getProjectItemFromPath(path, child);
-      if (childItem) {
-        return childItem;
-      }
-    }
-    return null;
   }
 }
