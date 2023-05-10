@@ -304,28 +304,54 @@ export class ServiceProjectComponent implements OnInit {
 
       if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
         this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
+        selectedItem.fullPath = newPath;
       }
 
-      selectedItem.fullPath = newPath;
       this.serviceProjectService.setSelectedItems(selectedItems);
     }
     this.isShowDialog = false;
     this.formDialog.reset();
   }
 
-  public onStartDragFile() {
+  public onStartDragFile(event: DragEvent, item: ServiceProjectItemInterface) {
+    console.log('START');
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    if (selectedItems.findIndex((selectedItem) => selectedItem.fullPath === item.fullPath) === -1) {
+      this.serviceProjectService.setSelectedItems([item]);
+    }
+
+    const element = new Image();
+    element.style.opacity = '0';
+    event.dataTransfer.setDragImage(element, 0, 0);
     this.isDragFile = true;
     this.cdRef.detectChanges();
   }
 
-  public onDragEndFile() {
+  public onDragEndFile(event: DragEvent) {
+    console.log('END');
     this.isDragFile = false;
     this.cdRef.detectChanges();
   }
 
+  public onDropFile(event: DragEvent, item: ServiceProjectItemInterface) {
+    console.log('DROP');
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    for (const selectedItem of selectedItems) {
+      const newPath = item.fullPath.concat(this.electronService.isWin ? '\\' : '/').concat(selectedItem.name);
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
+        selectedItem.fullPath = newPath;
+      }
+    }
+    this.isDragFile = false;
+    this.cdRef.detectChanges();
+    this.serviceProjectService.setSelectedItems(selectedItems);
+  }
+
   public onDragFile(event: DragEvent) {
-    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'top', event.screenY + 'px');
-    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'left', event.screenX + 'px');
+    console.log('DRAG');
+    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'top', `${event.pageY + 5}px`);
+    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'left', `${event.pageX + 5}px`);
   }
 
   private setContextMenuItems() {

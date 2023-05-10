@@ -13,14 +13,15 @@
           (contextmenu)="toggleContextMenu($event, item)"
           pDraggable="projectFile"
           class="relative"
-          (onDragStart)="onStartDragFile()"
-          (onDragEnd)="onDragEndFile()"
+          (onDragStart)="onStartDragFile($event, item)"
+          (onDragEnd)="onDragEndFile($event)"
           (onDrag)="onDragFile($event)"
         >
           <div
             *ngIf="isDragFile"
             pDroppable="projectFile"
             [pDroppableDisabled]="!(selectedItems$ | async | isDroppableProjectFile : item)"
+            (onDrop)="onDropFile($event, item)"
             class="absolute w-full h-full change-project-file"
           ></div>
 
@@ -146,7 +147,7 @@
 </p-dialog>
 
 <div #dragFileInfoTooltip class="absolute">
-  <div *ngIf="isDragFile" class="p-3">
+  <div *ngIf="isDragFile" class="px-2 py-1 bg-gray-700 opacity-60">
     <ng-container *ngFor="let fileInfo of selectedItems$ | async">
       <div class="flex align-items-center gap-1 py-1">
         <img [ngSrc]="fileInfo | fileTypeImagePath" width="18" height="18" [alt]="fileInfo.name" />
