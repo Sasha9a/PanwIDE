@@ -1,10 +1,11 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
+import { DragDropModule } from 'primeng/dragdrop';
 import { InputTextModule } from 'primeng/inputtext';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Tooltip } from 'primeng/tooltip';
@@ -23,6 +24,7 @@ import { LocalStorageService } from '../../../../core/services/local-storage.ser
 import { LocalTmpStorageService } from '../../../../core/services/local-tmp-storage.service';
 import { ServiceProjectService } from '../../../../core/services/service/service-project.service';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
+import { IsDroppableProjectFilePipe } from '../../../../shared/pipes/is-droppable-project-file.pipe';
 import { IsSelectProjectItemPipe } from '../../../../shared/pipes/is-select-project-item.pipe';
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 import { ParseFormErrorToStringPipe } from '../../../../shared/pipes/parse-form-error-to-string.pipe';
@@ -48,7 +50,9 @@ import { ServiceProjectRenameFileValidator } from '../../validators/service.proj
     ReactiveFormsModule,
     ParseFormErrorToStringPipe,
     ButtonModule,
-    IsSelectProjectItemPipe
+    IsSelectProjectItemPipe,
+    DragDropModule,
+    IsDroppableProjectFilePipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -77,6 +81,8 @@ export class ServiceProjectComponent implements OnInit {
 
   public contextMenuItems: MenuItem[] = [];
 
+  public isDragFile = false;
+
   public pressed = new Set<string>();
 
   public get ServiceProjectDialogTypeEnum() {
@@ -90,7 +96,8 @@ export class ServiceProjectComponent implements OnInit {
     private readonly electronService: ElectronService,
     private readonly serviceProjectService: ServiceProjectService,
     private readonly serviceProjectNewFileNameValidator: ServiceProjectNewNameValidator,
-    private readonly serviceProjectRenameFileValidator: ServiceProjectRenameFileValidator
+    private readonly serviceProjectRenameFileValidator: ServiceProjectRenameFileValidator,
+    private readonly cdRef: ChangeDetectorRef
   ) {}
 
   public ngOnInit() {
@@ -293,6 +300,16 @@ export class ServiceProjectComponent implements OnInit {
     }
     this.isShowDialog = false;
     this.formDialog.reset();
+  }
+
+  public onStartDragFile() {
+    this.isDragFile = true;
+    this.cdRef.detectChanges();
+  }
+
+  public onDragEndFile() {
+    this.isDragFile = false;
+    this.cdRef.detectChanges();
   }
 
   private setContextMenuItems() {

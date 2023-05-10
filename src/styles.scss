@@ -219,3 +219,10 @@ img {
     border-color: #707479 !important;
   }
 }
+
+.p-draggable-enter[ng-reflect-p-droppable-disabled="false"] {
+  &.change-project-file {
+    border: 1px solid var(--blue-500);
+    background-color: rgba(0, 120, 190, 0.15);
+  }
+}
