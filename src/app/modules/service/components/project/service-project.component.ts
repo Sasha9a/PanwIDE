@@ -1,14 +1,5 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  HostListener,
-  OnInit,
-  Renderer2,
-  ViewChild
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -107,8 +98,7 @@ export class ServiceProjectComponent implements OnInit {
     private readonly serviceProjectService: ServiceProjectService,
     private readonly serviceProjectNewFileNameValidator: ServiceProjectNewNameValidator,
     private readonly serviceProjectRenameFileValidator: ServiceProjectRenameFileValidator,
-    private readonly cdRef: ChangeDetectorRef,
-    private readonly renderer2: Renderer2
+    private readonly cdRef: ChangeDetectorRef
   ) {}
 
   public ngOnInit() {
@@ -320,14 +310,12 @@ export class ServiceProjectComponent implements OnInit {
       this.serviceProjectService.setSelectedItems([item]);
     }
 
-    const element = new Image();
-    element.style.opacity = '0';
-    event.dataTransfer.setDragImage(element, 0, 0);
     this.isDragFile = true;
     this.cdRef.detectChanges();
+    event.dataTransfer.setDragImage(this.dragFileInfoTooltip.nativeElement, 0, 0);
   }
 
-  public onDragEndFile(event: DragEvent) {
+  public onDragEndFile() {
     console.log('END');
     this.isDragFile = false;
     this.cdRef.detectChanges();
@@ -336,6 +324,8 @@ export class ServiceProjectComponent implements OnInit {
   public onDropFile(event: DragEvent, item: ServiceProjectItemInterface) {
     console.log('DROP');
     const selectedItems = this.serviceProjectService.getState.selectedItems;
+    this.isDragFile = false;
+    this.cdRef.detectChanges();
     for (const selectedItem of selectedItems) {
       const newPath = item.fullPath.concat(this.electronService.isWin ? '\\' : '/').concat(selectedItem.name);
       if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
@@ -343,15 +333,7 @@ export class ServiceProjectComponent implements OnInit {
         selectedItem.fullPath = newPath;
       }
     }
-    this.isDragFile = false;
-    this.cdRef.detectChanges();
     this.serviceProjectService.setSelectedItems(selectedItems);
-  }
-
-  public onDragFile(event: DragEvent) {
-    console.log('DRAG');
-    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'top', `${event.pageY + 5}px`);
-    this.renderer2.setStyle(this.dragFileInfoTooltip.nativeElement, 'left', `${event.pageX + 5}px`);
   }
 
   private setContextMenuItems() {

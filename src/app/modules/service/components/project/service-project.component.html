@@ -1,5 +1,5 @@
 <div class="relative w-full h-full bg-black-alpha-80">
-  <p-scrollPanel class="h-full w-full" styleClass="absolute h-full w-full">
+  <p-scrollPanel class="h-full w-full z-5" styleClass="absolute h-full w-full">
     <div class="my-1">
       <ng-container *ngFor="let file of files$ | async | orderBy : 'name:string' | orderBy : '-isDirectory:number'">
         <ng-template [ngTemplateOutlet]="fileItem" [ngTemplateOutletContext]="{ item: file, level: 0 }"></ng-template>
@@ -14,8 +14,7 @@
           pDraggable="projectFile"
           class="relative"
           (onDragStart)="onStartDragFile($event, item)"
-          (onDragEnd)="onDragEndFile($event)"
-          (onDrag)="onDragFile($event)"
+          (onDragEnd)="onDragEndFile()"
         >
           <div
             *ngIf="isDragFile"
@@ -146,7 +145,7 @@
   </ng-container>
 </p-dialog>
 
-<div #dragFileInfoTooltip class="absolute">
+<div #dragFileInfoTooltip class="absolute" style="top: -1000px">
   <div *ngIf="isDragFile" class="px-2 py-1 bg-gray-700 opacity-60">
     <ng-container *ngFor="let fileInfo of selectedItems$ | async">
       <div class="flex align-items-center gap-1 py-1">
