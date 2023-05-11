@@ -203,10 +203,14 @@ export class ServiceProjectComponent implements OnInit {
             newSelectedItems.push(fileFlat);
           }
         });
-        this.serviceProjectService.setSelectedItems([...newSelectedItems]);
+        this.serviceProjectService.setSelectedItems(newSelectedItems);
       }
     } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta)) {
-      this.serviceProjectService.setSelectedItems([...selectedItems, item]);
+      if (selectedItems.some((selectedItem) => selectedItem.fullPath === item.fullPath)) {
+        this.serviceProjectService.setSelectedItems(selectedItems.filter((selectedItem) => selectedItem.fullPath !== item.fullPath));
+      } else {
+        this.serviceProjectService.setSelectedItems([...selectedItems, item]);
+      }
     } else {
       this.serviceProjectService.setSelectedItems([item]);
     }

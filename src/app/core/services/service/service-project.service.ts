@@ -40,7 +40,13 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
   }
 
   public setSelectedItems(selectedItems: ServiceProjectItemInterface[]) {
-    this.updateState({ selectedItems: [...selectedItems] });
+    const newSelectedItems: ServiceProjectItemInterface[] = [];
+    for (const selectedItem of selectedItems) {
+      if (!newSelectedItems.some((newSelectedItem) => newSelectedItem.fullPath === selectedItem.fullPath)) {
+        newSelectedItems.push(selectedItem);
+      }
+    }
+    this.updateState({ selectedItems: [...newSelectedItems] });
   }
 
   public setDialogInfo(dialogInfo: ServiceProjectDialogInfoInterface) {
