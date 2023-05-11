@@ -5,6 +5,7 @@ import { createHandles } from './modules/project-service/project-service';
 
 require('@electron/remote/main').initialize();
 const mainRemote = require('@electron/remote/main');
+app.disableHardwareAcceleration();
 
 export let win: BrowserWindow = null;
 const args = process.argv.slice(1),

@@ -304,7 +304,6 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public onStartDragFile(event: DragEvent, item: ServiceProjectItemInterface) {
-    console.log('START');
     const selectedItems = this.serviceProjectService.getState.selectedItems;
     if (selectedItems.findIndex((selectedItem) => selectedItem.fullPath === item.fullPath) === -1) {
       this.serviceProjectService.setSelectedItems([item]);
@@ -316,13 +315,11 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public onDragEndFile() {
-    console.log('END');
     this.isDragFile = false;
     this.cdRef.detectChanges();
   }
 
   public onDropFile(event: DragEvent, item: ServiceProjectItemInterface) {
-    console.log('DROP');
     const selectedItems = this.serviceProjectService.getState.selectedItems;
     this.isDragFile = false;
     this.cdRef.detectChanges();
