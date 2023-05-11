@@ -147,12 +147,20 @@
 
 <div #dragFileInfoTooltip class="absolute" style="top: -1000px">
   <div *ngIf="isDragFile" class="px-2 py-1 bg-gray-700 opacity-60">
-    <ng-container *ngFor="let fileInfo of selectedItems$ | async">
-      <div class="flex align-items-center gap-1 py-1">
+    <ng-container *ngFor="let fileInfo of selectedItems$ | async; let index = index">
+      <div *ngIf="index < 12" class="flex align-items-center gap-1 py-1">
         <img [ngSrc]="fileInfo | fileTypeImagePath" width="18" height="18" [alt]="fileInfo.name" />
         <p class="select-none font-medium white-space-nowrap">
           {{ fileInfo.name }}
         </p>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="(selectedItems$ | async)?.length > 11">
+      <div *ngIf="(selectedItems$ | async)?.length - 12 as count" class="flex align-items-center gap-2">
+        <div class="w-1rem"></div>
+        <p *ngIf="count === 1" class="select-none font-medium white-space-nowrap py-1">И еще {{ count }} файл</p>
+        <p *ngIf="count >= 2 && count <= 4" class="select-none font-medium white-space-nowrap py-1">И еще {{ count }} файла</p>
+        <p *ngIf="count >= 5" class="select-none font-medium white-space-nowrap py-1">И еще {{ count }} файлов</p>
       </div>
     </ng-container>
   </div>
