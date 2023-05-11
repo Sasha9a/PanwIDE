@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as remote from '@electron/remote';
 import * as childProcess from 'child_process';
-import { ipcRenderer, webFrame } from 'electron';
+import { clipboard, ipcRenderer, webFrame } from 'electron';
 import * as fs from 'fs';
 
 @Injectable({
@@ -10,6 +10,7 @@ import * as fs from 'fs';
 export class ElectronService {
   public readonly ipcRenderer: typeof ipcRenderer;
   public readonly webFrame: typeof webFrame;
+  public readonly clipboard: typeof clipboard;
   public readonly childProcess: typeof childProcess;
   public readonly fs: typeof fs;
   public readonly remote: typeof remote;
@@ -19,6 +20,7 @@ export class ElectronService {
     if (this.isElectron) {
       this.ipcRenderer = window.require('electron').ipcRenderer;
       this.webFrame = window.require('electron').webFrame;
+      this.clipboard = window.require('electron').clipboard;
       this.remote = window.require('@electron/remote');
 
       this.fs = window.require('fs');

@@ -43,6 +43,20 @@ const createHandles = () => {
             console.error(`Error to work in chokidar: "${error.name}" ${error.message}`);
         });
     });
+    electron_1.ipcMain.handle('CopyFiles', (event, selectedItems) => {
+        const formats = electron_1.clipboard.availableFormats();
+        console.log(formats);
+        selectedItems.forEach((selectedItem, index) => {
+            if (fs.existsSync(selectedItem.fullPath)) {
+                if (selectedItem.isDirectory) {
+                    fs.readdirSync(selectedItem.fullPath, 'buffer');
+                }
+                else {
+                    electron_1.clipboard.writeBuffer(`text/uri-list`, Buffer.from('file://' + selectedItem.fullPath));
+                }
+            }
+        });
+    });
 };
 exports.createHandles = createHandles;
 const generateFileInfo = (path) => __awaiter(void 0, void 0, void 0, function* () {

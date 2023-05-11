@@ -144,9 +144,10 @@ export class ServiceProjectComponent implements OnInit {
     if (this.panel === this.localTmpStorageService.getState?.activePanel) {
       if (event.key === Key.Delete) {
         this.deleteFile();
-      }
-      if (this.pressed.has(Key.Shift) && this.pressed.has(Key.F6)) {
+      } else if (this.pressed.has(Key.Shift) && this.pressed.has(Key.F6)) {
         this.showRenameDialog();
+      } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) && this.pressed.has('c')) {
+        this.copyFile();
       }
     }
     this.pressed.delete(event.key);
@@ -337,6 +338,54 @@ export class ServiceProjectComponent implements OnInit {
     this.serviceProjectService.setSelectedItems(selectedItems);
   }
 
+  public copyFile() {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    // const parentPath = this.serviceProjectService.getState.filesFlat?.[0]?.fullPath;
+    // const copiedSelectedItems: ServiceProjectItemInterface[] = [];
+    //
+    // if (selectedItems.some((selectedItem) => selectedItem.fullPath === parentPath)) {
+    //   copiedSelectedItems.push(selectedItems.find((selectedItem) => selectedItem.fullPath === parentPath));
+    // } else {
+    //   for (const selectedItem of selectedItems) {
+    //     let isRemove = false;
+    //     for (
+    //       let str = selectedItem.fullPath;
+    //       str !== parentPath;
+    //       str = str.slice(0, str.lastIndexOf(this.electronService.isWin ? '\\' : '/'))
+    //     ) {
+    //       if (str === selectedItem.fullPath) {
+    //         continue;
+    //       }
+    //       if (selectedItems.some((_selectedItem) => _selectedItem.fullPath === str)) {
+    //         isRemove = true;
+    //         break;
+    //       }
+    //     }
+    //     if (!isRemove) {
+    //       copiedSelectedItems.push(selectedItem);
+    //     }
+    //   }
+    // }
+    const buffers: Buffer[] = [];
+    const buffersDir: Uint8Array[][] = [];
+
+    const formats = this.electronService.clipboard.availableFormats();
+    console.log(formats);
+
+    selectedItems.forEach((selectedItem, index) => {
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        if (selectedItem.isDirectory) {
+          buffersDir.push(this.electronService.fs.readdirSync(selectedItem.fullPath, 'buffer'));
+        } else {
+          buffers.push(this.electronService.fs.readFileSync(selectedItem.fullPath));
+          this.electronService.clipboard.writeBuffer(`text/uri-list`, Buffer.from('file://' + selectedItem.fullPath));
+        }
+      }
+    });
+    console.log(buffers);
+    console.log(buffersDir);
+  }
+
   private setContextMenuItems() {
     this.contextMenuItems = [
       {
@@ -411,6 +460,26 @@ export class ServiceProjectComponent implements OnInit {
             }
           }
         ]
+      },
+      {
+        separator: true
+      },
+      {
+        label: `<div class="flex justify-content-between gap-2">
+                  <div class="flex align-items-center gap-2">
+                    <div class="w-1rem">
+                      <i class="pi pi-clone text-green-300"></i>
+                    </div>
+                    Копировать
+                  </div>
+                  <p class="font-normal text-gray-300 white-space-nowrap">
+                    ${this.electronService.isWin ? 'Ctrl+C' : '⌘C'}
+                  </p>
+                </div>`,
+        escape: false,
+        command: () => {
+          this.copyFile();
+        }
       },
       {
         separator: true
