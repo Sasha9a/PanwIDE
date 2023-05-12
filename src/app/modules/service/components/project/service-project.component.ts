@@ -1,6 +1,7 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import plist from 'plist';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
@@ -148,6 +149,8 @@ export class ServiceProjectComponent implements OnInit {
         this.showRenameDialog();
       } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) && this.pressed.has('c')) {
         this.copyFile();
+      } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) && this.pressed.has('v')) {
+        this.pasteFile();
       }
     }
     this.pressed.delete(event.key);
@@ -340,24 +343,75 @@ export class ServiceProjectComponent implements OnInit {
 
   public copyFile() {
     const selectedItems = this.serviceProjectService.getState.selectedItems;
-    const buffers: Buffer[] = [];
-    const buffersDir: Uint8Array[][] = [];
 
-    const formats = this.electronService.clipboard.availableFormats();
-    console.log(formats);
+    if (window.process.platform === 'darwin') {
+      this.electronService.clipboard.writeBuffer(
+        'NSFilenamesPboardType',
+        Buffer.from(plist.build(selectedItems.map((selectedItem) => selectedItem.fullPath)))
+      );
+    }
 
-    selectedItems.forEach((selectedItem, index) => {
-      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-        if (selectedItem.isDirectory) {
-          buffersDir.push(this.electronService.fs.readdirSync(selectedItem.fullPath, 'buffer'));
-        } else {
-          buffers.push(this.electronService.fs.readFileSync(selectedItem.fullPath));
-          this.electronService.clipboard.writeBuffer(`text/uri-list`, Buffer.from('file://' + selectedItem.fullPath));
+    // selectedItems.forEach((selectedItem, index) => {
+    //   if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+    //     if (selectedItem.isDirectory) {
+    //     } else {
+    //       const fileBuffer = this.electronService.fs.readFileSync(selectedItem.fullPath);
+    //       const base64File = fileBuffer.toString('base64');
+    //       const buffer = Buffer.from(base64File, 'base64');
+    //       this.electronService.clipboard.writeBuffer(`public.file-url`, buffer);
+    //     }
+    //   }
+    // });
+    // console.log(this.electronService.clipboard.readBuffer('public.file-url'));
+  }
+
+  public pasteFile() {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    const parentItem = this.serviceProjectService.getState.filesFlat?.[0];
+    const newSelectedDirectoryPath: string[] = [];
+    const arrayFilesInSelectedDirectory: { path: string; items: string[] }[] = [];
+
+    for (const selectedItem of selectedItems) {
+      if (selectedItem.fullPath === parentItem.fullPath && !selectedItem.isDirectory) {
+        continue;
+      }
+      if (selectedItem.isDirectory) {
+        newSelectedDirectoryPath.push(selectedItem.fullPath);
+        continue;
+      }
+      newSelectedDirectoryPath.push(
+        selectedItem.fullPath.slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/'))
+      );
+    }
+
+    for (const selectedDirectoryPath of newSelectedDirectoryPath) {
+      if (this.electronService.fs.existsSync(selectedDirectoryPath)) {
+        arrayFilesInSelectedDirectory.push({
+          path: selectedDirectoryPath,
+          items: this.electronService.fs.readdirSync(selectedDirectoryPath)
+        });
+      }
+    }
+
+    if (window.process.platform === 'darwin') {
+      if (this.electronService.clipboard.read('NSFilenamesPboardType') && arrayFilesInSelectedDirectory?.length) {
+        const copyFilesPath: string[] = plist.parse(this.electronService.clipboard.read('NSFilenamesPboardType')) as string[];
+        for (const filePath of copyFilesPath) {
+          if (!this.electronService.fs.existsSync(filePath)) {
+            continue;
+          }
+          for (const itemDirectory of arrayFilesInSelectedDirectory) {
+            const nameFile = filePath.slice(filePath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1);
+            if (itemDirectory.items.some((item) => item === nameFile)) {
+              continue;
+            }
+            this.electronService.fs.cpSync(filePath, itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile, {
+              recursive: true
+            });
+          }
         }
       }
-    });
-    console.log(buffers);
-    console.log(buffersDir);
+    }
   }
 
   private setContextMenuItems() {
@@ -453,6 +507,23 @@ export class ServiceProjectComponent implements OnInit {
         escape: false,
         command: () => {
           this.copyFile();
+        }
+      },
+      {
+        label: `<div class="flex justify-content-between gap-2">
+                  <div class="flex align-items-center gap-2">
+                    <div class="w-1rem flex align-items-center justify-content-center">
+                      <i class="fa-regular fa-clipboard text-yellow-400"></i>
+                    </div>
+                    Вставить
+                  </div>
+                  <p class="font-normal text-gray-300 white-space-nowrap">
+                    ${this.electronService.isWin ? 'Ctrl+V' : '⌘V'}
+                  </p>
+                </div>`,
+        escape: false,
+        command: () => {
+          this.pasteFile();
         }
       },
       {
