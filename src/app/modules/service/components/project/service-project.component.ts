@@ -340,32 +340,6 @@ export class ServiceProjectComponent implements OnInit {
 
   public copyFile() {
     const selectedItems = this.serviceProjectService.getState.selectedItems;
-    // const parentPath = this.serviceProjectService.getState.filesFlat?.[0]?.fullPath;
-    // const copiedSelectedItems: ServiceProjectItemInterface[] = [];
-    //
-    // if (selectedItems.some((selectedItem) => selectedItem.fullPath === parentPath)) {
-    //   copiedSelectedItems.push(selectedItems.find((selectedItem) => selectedItem.fullPath === parentPath));
-    // } else {
-    //   for (const selectedItem of selectedItems) {
-    //     let isRemove = false;
-    //     for (
-    //       let str = selectedItem.fullPath;
-    //       str !== parentPath;
-    //       str = str.slice(0, str.lastIndexOf(this.electronService.isWin ? '\\' : '/'))
-    //     ) {
-    //       if (str === selectedItem.fullPath) {
-    //         continue;
-    //       }
-    //       if (selectedItems.some((_selectedItem) => _selectedItem.fullPath === str)) {
-    //         isRemove = true;
-    //         break;
-    //       }
-    //     }
-    //     if (!isRemove) {
-    //       copiedSelectedItems.push(selectedItem);
-    //     }
-    //   }
-    // }
     const buffers: Buffer[] = [];
     const buffersDir: Uint8Array[][] = [];
 
