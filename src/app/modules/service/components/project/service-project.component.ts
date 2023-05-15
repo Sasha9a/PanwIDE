@@ -524,7 +524,7 @@ export class ServiceProjectComponent implements OnInit {
             },
             {
               label: 'Путь от корня проекта',
-              result: selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 2)).join(' ')
+              result: selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 1)).join(' ')
             }
           ];
           this.selectedCopyPath = this.listCopyPathOptions[0];

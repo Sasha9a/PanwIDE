@@ -226,3 +226,22 @@ img {
     background-color: rgba(0, 120, 190, 0.15);
   }
 }
+
+.p-listbox {
+  background: var(--gray-700) !important;
+  color: #343a3f !important;
+  border: 0 !important;
+}
+
+.p-listbox:not(.p-disabled) .p-listbox-item:not(.p-highlight):not(.p-disabled):hover {
+  background: #405b9b !important;
+}
+
+.p-listbox .p-listbox-list .p-listbox-item.p-highlight {
+  color: #ffffff;
+  background: #405b9b;
+}
+
+.p-listbox .p-listbox-list .p-listbox-item:focus {
+  box-shadow: none !important;
+}
