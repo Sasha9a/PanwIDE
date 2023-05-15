@@ -350,19 +350,6 @@ export class ServiceProjectComponent implements OnInit {
         Buffer.from(plist.build(selectedItems.map((selectedItem) => selectedItem.fullPath)))
       );
     }
-
-    // selectedItems.forEach((selectedItem, index) => {
-    //   if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-    //     if (selectedItem.isDirectory) {
-    //     } else {
-    //       const fileBuffer = this.electronService.fs.readFileSync(selectedItem.fullPath);
-    //       const base64File = fileBuffer.toString('base64');
-    //       const buffer = Buffer.from(base64File, 'base64');
-    //       this.electronService.clipboard.writeBuffer(`public.file-url`, buffer);
-    //     }
-    //   }
-    // });
-    // console.log(this.electronService.clipboard.readBuffer('public.file-url'));
   }
 
   public pasteFile() {
