@@ -8,7 +8,7 @@ import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
 import { DragDropModule } from 'primeng/dragdrop';
 import { InputTextModule } from 'primeng/inputtext';
-import { ListboxModule } from 'primeng/listbox';
+import { Listbox, ListboxModule } from 'primeng/listbox';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Tooltip } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
@@ -64,6 +64,7 @@ export class ServiceProjectComponent implements OnInit {
   @ViewChild('contextMenu') public contextMenu: ContextMenu;
   @ViewChild('inputRenameFile') public inputRenameFile: ElementRef;
   @ViewChild('dragFileInfoTooltip') public dragFileInfoTooltip: ElementRef;
+  @ViewChild('copyListBox') public copyListBox: Listbox;
   @ViewChild(Tooltip) tooltip: Tooltip;
 
   public panel: PanelEnum;
@@ -85,8 +86,8 @@ export class ServiceProjectComponent implements OnInit {
   };
 
   public contextMenuItems: MenuItem[] = [];
-  public listCopyPathOptions: { label: string; result: string; key?: string }[];
-  public selectedCopyPath: { label: string; result: string; key?: string };
+  public listCopyPathOptions: { label: string; result: string; type: 'absolutePath' | 'fileName' | 'localPath'; key?: string }[];
+  public selectedCopyPath: { label: string; result: string; type: 'absolutePath' | 'fileName' | 'localPath'; key?: string };
 
   public isDragFile = false;
 
@@ -516,15 +517,18 @@ export class ServiceProjectComponent implements OnInit {
             {
               label: 'Абсолютный путь',
               result: selectedItems.map((selectItem) => selectItem.fullPath).join(' '),
+              type: 'absolutePath',
               key: this.electronService.isWin ? 'Shift+Ctrl+C' : '⇧⌘C'
             },
             {
               label: 'Имя файла',
-              result: selectedItems.map((selectItem) => selectItem.name).join(' ')
+              result: selectedItems.map((selectItem) => selectItem.name).join(' '),
+              type: 'fileName'
             },
             {
               label: 'Путь от корня проекта',
-              result: selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 1)).join(' ')
+              result: selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 1)).join(' '),
+              type: 'localPath'
             }
           ];
           this.selectedCopyPath = this.listCopyPathOptions[0];

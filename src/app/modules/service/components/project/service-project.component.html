@@ -84,7 +84,7 @@
   </ng-template>
   <div class="w-full border-top-1 border-black-alpha-90"></div>
   <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.copyPath">
-    <p-listbox [options]="listCopyPathOptions" [(ngModel)]="selectedCopyPath" [style]="{ width: '25rem' }" optionValue="result">
+    <p-listbox #copyListBox [options]="listCopyPathOptions" [(ngModel)]="selectedCopyPath" [style]="{ width: '25rem' }" optionValue="type">
       <ng-template let-item pTemplate="item">
         <div class="flex align-items-center justify-content-between gap-3">
           <div class="flex gap-3 align-items-center">
