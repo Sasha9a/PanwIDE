@@ -3,5 +3,6 @@ export enum ServiceProjectDialogTypeEnum {
   newDirectory = 'newDirectory',
   newPwn = 'newPwn',
   newInc = 'newInc',
-  rename = 'rename'
+  rename = 'rename',
+  copyPath = 'copyPath'
 }

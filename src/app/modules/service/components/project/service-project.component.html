@@ -83,6 +83,21 @@
     <span class="font-medium text-white text-center w-full">{{ textHeaderDialog }}</span>
   </ng-template>
   <div class="w-full border-top-1 border-black-alpha-90"></div>
+  <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.copyPath">
+    <p-listbox [options]="listCopyPathOptions" [(ngModel)]="selectedCopyPath" [style]="{ width: '25rem' }" optionValue="result">
+      <ng-template let-item pTemplate="item">
+        <div class="flex align-items-center justify-content-between gap-3">
+          <div class="flex gap-3 align-items-center">
+            <p class="font-medium">{{ item.label }}</p>
+            <p *ngIf="item.key" class="font-normal text-gray-300 white-space-nowrap">{{ item.key }}</p>
+          </div>
+          <div>
+            <p class="font-normal text-gray-300 white-space-nowrap">{{ item.result }}</p>
+          </div>
+        </div>
+      </ng-template>
+    </p-listbox>
+  </ng-container>
   <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.rename">
     <div class="p-3">
       <p class="mb-2">

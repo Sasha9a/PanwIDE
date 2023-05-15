@@ -1,6 +1,6 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import plist from 'plist';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -8,6 +8,7 @@ import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
 import { DragDropModule } from 'primeng/dragdrop';
 import { InputTextModule } from 'primeng/inputtext';
+import { ListboxModule } from 'primeng/listbox';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Tooltip } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
@@ -53,7 +54,9 @@ import { ServiceProjectRenameFileValidator } from '../../validators/service.proj
     ButtonModule,
     IsSelectProjectItemPipe,
     DragDropModule,
-    IsDroppableProjectFilePipe
+    IsDroppableProjectFilePipe,
+    ListboxModule,
+    FormsModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -82,6 +85,8 @@ export class ServiceProjectComponent implements OnInit {
   };
 
   public contextMenuItems: MenuItem[] = [];
+  public listCopyPathOptions: { label: string; result: string; key?: string }[];
+  public selectedCopyPath: { label: string; result: string; key?: string };
 
   public isDragFile = false;
 
@@ -494,6 +499,43 @@ export class ServiceProjectComponent implements OnInit {
         escape: false,
         command: () => {
           this.copyFile();
+        }
+      },
+      {
+        label: `<div class="flex justify-content-between gap-2">
+                  <div class="flex align-items-center gap-2">
+                    <div class="w-1rem"></div>
+                    Копировать путь
+                  </div>
+                </div>`,
+        escape: false,
+        command: () => {
+          const selectedItems = this.serviceProjectService.getState.selectedItems;
+          const parentPath = this.serviceProjectService.getState.filesFlat?.[0];
+          this.listCopyPathOptions = [
+            {
+              label: 'Абсолютный путь',
+              result: selectedItems.map((selectItem) => selectItem.fullPath).join(' '),
+              key: this.electronService.isWin ? 'Shift+Ctrl+C' : '⇧⌘C'
+            },
+            {
+              label: 'Имя файла',
+              result: selectedItems.map((selectItem) => selectItem.name).join(' ')
+            },
+            {
+              label: 'Путь от корня проекта',
+              result: selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 2)).join(' ')
+            }
+          ];
+          this.selectedCopyPath = this.listCopyPathOptions[0];
+
+          this.isShowDialog = true;
+          this.serviceProjectService.setDialogInfo({ dialogType: ServiceProjectDialogTypeEnum.copyPath });
+          this.textHeaderDialog = 'Копировать';
+          this.checkedClicked = true;
+          setTimeout(() => {
+            this.checkedClicked = false;
+          }, 500);
         }
       },
       {
