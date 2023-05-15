@@ -89,7 +89,7 @@
   </ng-template>
 
   <ng-template #servicePanel let-panel="panel">
-    <div class="flex-grow-1" (click)="clickToPanel(panel)">
+    <div class="flex-grow-1" style="min-width: 50px; min-height: 50px" (click)="clickToPanel(panel)">
       <app-service-switch [panelType]="panel"></app-service-switch>
     </div>
   </ng-template>

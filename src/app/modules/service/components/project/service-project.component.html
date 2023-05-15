@@ -71,7 +71,7 @@
   [style]="{ width: '25rem' }"
   [closable]="false"
   [modal]="[ServiceProjectDialogTypeEnum.rename].includes($any((dialogInfo$ | async)?.dialogType))"
-  [resizable]="false"
+  [resizable]="[ServiceProjectDialogTypeEnum.copyPath].includes($any((dialogInfo$ | async)?.dialogType))"
   (onDragEnd)="onDragEndDialog()"
   (keyup.escape)="clickToEscape()"
   (keyup.enter)="onClickEnterDialog()"
@@ -84,19 +84,19 @@
   </ng-template>
   <div class="w-full border-top-1 border-black-alpha-90"></div>
   <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.copyPath">
-    <p-listbox #copyListBox [options]="listCopyPathOptions" [(ngModel)]="selectedCopyPath" [style]="{ width: '25rem' }" optionValue="type">
-      <ng-template let-item pTemplate="item">
-        <div class="flex align-items-center justify-content-between gap-3">
+    <div class="mx-3 overflow-x-hidden">
+      <ng-container *ngFor="let item of listCopyPathOptions">
+        <div class="flex align-items-center justify-content-between gap-3 w-full">
           <div class="flex gap-3 align-items-center">
             <p class="font-medium white-space-nowrap">{{ item.label }}</p>
             <p *ngIf="item.key" class="font-normal text-gray-300 white-space-nowrap">{{ item.key }}</p>
           </div>
-          <div>
-            <p class="font-normal text-gray-300 white-space-nowrap">{{ item.result }}</p>
-          </div>
+          <p class="flex-grow-1 font-normal text-gray-300 white-space-nowrap text-center text-overflow-ellipsis">
+            {{ item.result }}
+          </p>
         </div>
-      </ng-template>
-    </p-listbox>
+      </ng-container>
+    </div>
   </ng-container>
   <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.rename">
     <div class="p-3">

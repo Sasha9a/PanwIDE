@@ -1,6 +1,6 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import plist from 'plist';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -8,7 +8,6 @@ import { ContextMenu, ContextMenuModule } from 'primeng/contextmenu';
 import { DialogModule } from 'primeng/dialog';
 import { DragDropModule } from 'primeng/dragdrop';
 import { InputTextModule } from 'primeng/inputtext';
-import { Listbox, ListboxModule } from 'primeng/listbox';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { Tooltip } from 'primeng/tooltip';
 import { Observable } from 'rxjs';
@@ -54,9 +53,7 @@ import { ServiceProjectRenameFileValidator } from '../../validators/service.proj
     ButtonModule,
     IsSelectProjectItemPipe,
     DragDropModule,
-    IsDroppableProjectFilePipe,
-    ListboxModule,
-    FormsModule
+    IsDroppableProjectFilePipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -64,7 +61,6 @@ export class ServiceProjectComponent implements OnInit {
   @ViewChild('contextMenu') public contextMenu: ContextMenu;
   @ViewChild('inputRenameFile') public inputRenameFile: ElementRef;
   @ViewChild('dragFileInfoTooltip') public dragFileInfoTooltip: ElementRef;
-  @ViewChild('copyListBox') public copyListBox: Listbox;
   @ViewChild(Tooltip) tooltip: Tooltip;
 
   public panel: PanelEnum;
