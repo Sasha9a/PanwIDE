@@ -1,0 +1,14 @@
+<div [class]="class">
+  <div *ngFor="let item of options">
+    <div
+      class="border-round-sm cursor-pointer py-1 px-2"
+      [class.bg-blue-selected-item]="focusedItem === item"
+      (click)="onClickItem(item)"
+      (mouseenter)="onMouseEnter(item)"
+    >
+      <ng-container *ngIf="itemTemplate">
+        <ng-template [ngTemplateOutlet]="itemTemplate" [ngTemplateOutletContext]="{ item: item }"></ng-template>
+      </ng-container>
+    </div>
+  </div>
+</div>

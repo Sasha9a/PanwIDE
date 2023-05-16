@@ -24,11 +24,13 @@ import { GlobalStorageService } from '../../../../core/services/global.storage.s
 import { LocalStorageService } from '../../../../core/services/local-storage.service';
 import { LocalTmpStorageService } from '../../../../core/services/local-tmp-storage.service';
 import { ServiceProjectService } from '../../../../core/services/service/service-project.service';
+import { ListBoxComponent } from '../../../../shared/components/list-box/list-box.component';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
 import { IsDroppableProjectFilePipe } from '../../../../shared/pipes/is-droppable-project-file.pipe';
 import { IsSelectProjectItemPipe } from '../../../../shared/pipes/is-select-project-item.pipe';
 import { OrderByPipe } from '../../../../shared/pipes/order-by.pipe';
 import { ParseFormErrorToStringPipe } from '../../../../shared/pipes/parse-form-error-to-string.pipe';
+import { SafeHtmlPipe } from '../../../../shared/pipes/safe-html.pipe';
 import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
 import { ServiceProjectNewNameValidator } from '../../validators/service.project.new.name.validator';
 import { ServiceProjectRenameFileValidator } from '../../validators/service.project.rename.file.validator';
@@ -53,7 +55,9 @@ import { ServiceProjectRenameFileValidator } from '../../validators/service.proj
     ButtonModule,
     IsSelectProjectItemPipe,
     DragDropModule,
-    IsDroppableProjectFilePipe
+    IsDroppableProjectFilePipe,
+    ListBoxComponent,
+    SafeHtmlPipe
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -140,6 +144,14 @@ export class ServiceProjectComponent implements OnInit {
   @HostListener('window:keydown', ['$event'])
   public onKeydown(event: KeyboardEvent) {
     this.pressed.add(event.key);
+    if (this.panel === this.localTmpStorageService.getState?.activePanel) {
+      if (event.key === Key.Escape) {
+        if (this.isShowDialog) {
+          this.isShowDialog = false;
+          this.formDialog.reset();
+        }
+      }
+    }
   }
 
   @HostListener('window:keyup', ['$event'])
@@ -229,13 +241,6 @@ export class ServiceProjectComponent implements OnInit {
     }
     this.setContextMenuItems();
     this.contextMenu.show(event);
-  }
-
-  public clickToEscape() {
-    if (this.isShowDialog) {
-      this.isShowDialog = false;
-      this.formDialog.reset();
-    }
   }
 
   public onClickEnterDialog() {
@@ -512,18 +517,51 @@ export class ServiceProjectComponent implements OnInit {
           this.listCopyPathOptions = [
             {
               label: 'Абсолютный путь',
-              result: selectedItems.map((selectItem) => selectItem.fullPath).join(' '),
+              result:
+                selectedItems?.length > 5
+                  ? selectedItems
+                      .slice(0, 5)
+                      .map((selectItem) => selectItem.fullPath)
+                      .concat(
+                        `<span class="text-gray-100">И еще ${selectedItems?.length - 5} ${
+                          selectedItems?.length - 5 === 1 ? 'путь' : selectedItems?.length - 5 < 5 ? 'пути' : 'путей'
+                        }</span>`
+                      )
+                      .join(' ')
+                  : selectedItems.map((selectItem) => selectItem.fullPath).join(' '),
               type: 'absolutePath',
               key: this.electronService.isWin ? 'Shift+Ctrl+C' : '⇧⌘C'
             },
             {
               label: 'Имя файла',
-              result: selectedItems.map((selectItem) => selectItem.name).join(' '),
+              result:
+                selectedItems?.length > 5
+                  ? selectedItems
+                      .slice(0, 5)
+                      .map((selectItem) => selectItem.name)
+                      .concat(
+                        `<span class="text-gray-100">И еще ${selectedItems?.length - 5} ${
+                          selectedItems?.length - 5 === 1 ? 'имя' : selectedItems?.length - 5 < 5 ? 'имени' : 'имен'
+                        }</span>`
+                      )
+                      .join(' ')
+                  : selectedItems.map((selectItem) => selectItem.name).join(' '),
               type: 'fileName'
             },
             {
               label: 'Путь от корня проекта',
-              result: selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 1)).join(' '),
+              result:
+                selectedItems?.length > 5
+                  ? selectedItems
+                      .slice(0, 5)
+                      .map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 1))
+                      .concat(
+                        `<span class="text-gray-100">И еще ${selectedItems?.length - 5} ${
+                          selectedItems?.length - 5 === 1 ? 'путь' : selectedItems?.length - 5 < 5 ? 'пути' : 'путей'
+                        }</span>`
+                      )
+                      .join(' ')
+                  : selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 1)).join(' '),
               type: 'localPath'
             }
           ];

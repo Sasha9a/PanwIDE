@@ -36,6 +36,20 @@ p {
   font-weight: 500;
 }
 
+::-webkit-scrollbar {
+  background-color: transparent !important;
+  width: 9px !important;
+  height: 9px !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #6c6c6c !important;
+  border-radius: 3px !important;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent !important;
+}
 
 .drag-header {
   -webkit-app-region: drag;
@@ -153,7 +167,6 @@ img {
 .p-dialog .p-dialog-content {
   background: var(--gray-700) !important;
   padding: 0 !important;
-  overflow-x: hidden !important;
 }
 
 .p-dialog .p-dialog-header .p-dialog-header-icon {
