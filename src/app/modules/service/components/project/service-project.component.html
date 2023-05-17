@@ -68,7 +68,7 @@
 <p-dialog
   [(visible)]="isShowDialog"
   (onHide)="hideDialog()"
-  [style]="{ width: '25rem' }"
+  [style]="{ width: '25rem', 'min-width': '25rem' }"
   [closable]="false"
   [modal]="[ServiceProjectDialogTypeEnum.rename].includes($any((dialogInfo$ | async)?.dialogType))"
   [resizable]="[ServiceProjectDialogTypeEnum.copyPath].includes($any((dialogInfo$ | async)?.dialogType))"
@@ -84,13 +84,13 @@
   <div class="w-full border-top-1 border-black-alpha-90"></div>
   <ng-container *ngIf="(dialogInfo$ | async)?.dialogType === ServiceProjectDialogTypeEnum.copyPath">
     <div class="mx-2 my-1">
-      <app-list-box [options]="listCopyPathOptions" [focusedItem]="listCopyPathOptions[0]">
+      <app-list-box [options]="listCopyPathOptions" [focusedItem]="listCopyPathOptions[0]" (selectedItemChange)="copyPath($event)">
         <ng-template #itemTemplate let-item="item">
           <div class="flex gap-2 align-items-center">
             <p class="font-medium white-space-nowrap">{{ item.label }}</p>
             <p *ngIf="item.key" class="font-normal text-gray-300 white-space-nowrap">{{ item.key }}</p>
           </div>
-          <p class="font-normal text-gray-300 text-overflow-ellipsis" [innerHTML]="item.result | safeHtml"></p>
+          <p class="font-normal text-gray-300 word-wrap-break-word" [innerHTML]="item.result | safeHtml"></p>
         </ng-template>
       </app-list-box>
     </div>

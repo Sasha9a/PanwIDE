@@ -34,6 +34,7 @@ import { SafeHtmlPipe } from '../../../../shared/pipes/safe-html.pipe';
 import { ServiceProjectDialogTypeEnum } from '../../enums/service.project.dialog.type.enum';
 import { ServiceProjectNewNameValidator } from '../../validators/service.project.new.name.validator';
 import { ServiceProjectRenameFileValidator } from '../../validators/service.project.rename.file.validator';
+import { CopyPathItemInterface } from './interfaces/copy.path.item.interface';
 
 @Component({
   standalone: true,
@@ -86,8 +87,8 @@ export class ServiceProjectComponent implements OnInit {
   };
 
   public contextMenuItems: MenuItem[] = [];
-  public listCopyPathOptions: { label: string; result: string; type: 'absolutePath' | 'fileName' | 'localPath'; key?: string }[];
-  public selectedCopyPath: { label: string; result: string; type: 'absolutePath' | 'fileName' | 'localPath'; key?: string };
+  public listCopyPathOptions: CopyPathItemInterface[];
+  public selectedCopyPath: CopyPathItemInterface;
 
   public isDragFile = false;
 
@@ -159,6 +160,12 @@ export class ServiceProjectComponent implements OnInit {
     if (this.panel === this.localTmpStorageService.getState?.activePanel) {
       if (event.key === Key.Delete) {
         this.deleteFile();
+      } else if (
+        this.pressed.has(Key.Shift) &&
+        this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) &&
+        this.pressed.has('c')
+      ) {
+        this.copyPath({ label: 'Абсолютный путь', type: 'absolutePath', result: '' });
       } else if (this.pressed.has(Key.Shift) && this.pressed.has(Key.F6)) {
         this.showRenameDialog();
       } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) && this.pressed.has('c')) {
@@ -405,6 +412,25 @@ export class ServiceProjectComponent implements OnInit {
           }
         }
       }
+    }
+  }
+
+  public copyPath(item: CopyPathItemInterface) {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    const parentPath = this.serviceProjectService.getState.filesFlat?.[0];
+    let text = '';
+    if (item.type === 'absolutePath') {
+      text = selectedItems.map((selectItem) => selectItem.fullPath).join(' ');
+    } else if (item.type === 'fileName') {
+      text = selectedItems.map((selectItem) => selectItem.name).join(' ');
+    } else if (item.type === 'localPath') {
+      text = selectedItems.map((selectItem) => selectItem.fullPath.slice(parentPath.fullPath?.length + 1)).join(' ');
+    }
+    if (text?.length) {
+      this.electronService.clipboard.writeText(text);
+    }
+    if (this.isShowDialog) {
+      this.isShowDialog = false;
     }
   }
 

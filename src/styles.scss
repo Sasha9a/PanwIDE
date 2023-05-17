@@ -167,6 +167,7 @@ img {
 .p-dialog .p-dialog-content {
   background: var(--gray-700) !important;
   padding: 0 !important;
+  overflow-x: hidden !important;
 }
 
 .p-dialog .p-dialog-header .p-dialog-header-icon {
@@ -258,4 +259,8 @@ img {
 
 .p-listbox .p-listbox-list .p-listbox-item:focus {
   box-shadow: none !important;
+}
+
+.word-wrap-break-word {
+  word-wrap: break-word !important;
 }
