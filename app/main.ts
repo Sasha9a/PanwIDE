@@ -1,7 +1,8 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as fs from 'fs';
+import * as schedule from 'node-schedule';
 import * as path from 'path';
-import { createHandles } from './modules/project-service/project-service';
+import { checkUpdateFiles, createHandles } from './modules/project-service/project-service';
 
 require('@electron/remote/main').initialize();
 const mainRemote = require('@electron/remote/main');
@@ -58,6 +59,10 @@ function createWindow(): BrowserWindow {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     win = null;
+  });
+
+  schedule.scheduleJob('* * * * * *', () => {
+    checkUpdateFiles();
   });
 
   return win;

@@ -146,7 +146,6 @@ export class ServiceProjectComponent implements OnInit {
   public onKeydown(event: KeyboardEvent) {
     this.pressed.add(event.key);
     if (this.panel === this.localTmpStorageService.getState?.activePanel) {
-      console.log('keydown', event.key, event.shiftKey, event.metaKey);
       if (event.key === Key.Escape) {
         if (this.isShowDialog) {
           this.isShowDialog = false;

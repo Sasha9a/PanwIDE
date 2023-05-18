@@ -1,38 +1,55 @@
 import * as chokidar from 'chokidar';
 import { ipcMain } from 'electron';
 import * as fs from 'fs';
+import moment from 'moment-timezone';
 import { IpcChannelEnum } from '../../../libs/enums/ipc.channel.enum';
 import { ServiceProjectItemInterface } from '../../../libs/interfaces/service.project.item.interface';
 import { win } from '../../main';
 
+let timeFromChangeFiles: moment.Moment;
+let changesFileCount = 0;
+let path: string;
+
 export const createHandles = () => {
-  ipcMain.handle(IpcChannelEnum.SERVICE_PROJECT_START_LOAD_FILES, (event, path: string) => {
-    const watcher = chokidar.watch(path);
+  ipcMain.handle(IpcChannelEnum.SERVICE_PROJECT_START_LOAD_FILES, (event, _path: string) => {
+    const watcher = chokidar.watch(_path);
     let isFullLoad = false;
+    path = _path;
     watcher.on('ready', async () => {
-      await generateFileInfo(path);
+      await generateFileInfo(_path);
       isFullLoad = true;
     });
-    watcher.on('add', async () => {
+    watcher.on('add', () => {
       if (isFullLoad) {
-        await generateFileInfo(path);
+        changesFileCount++;
+        timeFromChangeFiles = moment();
       }
     });
-    watcher.on('addDir', async () => {
+    watcher.on('addDir', () => {
       if (isFullLoad) {
-        await generateFileInfo(path);
+        changesFileCount++;
+        timeFromChangeFiles = moment();
       }
     });
-    watcher.on('unlink', async () => {
-      await generateFileInfo(path);
+    watcher.on('unlink', () => {
+      changesFileCount++;
+      timeFromChangeFiles = moment();
     });
-    watcher.on('unlinkDir', async () => {
-      await generateFileInfo(path);
+    watcher.on('unlinkDir', () => {
+      changesFileCount++;
+      timeFromChangeFiles = moment();
     });
     watcher.on('error', (error) => {
       console.error(`Error to work in chokidar: "${error.name}" ${error.message}`);
     });
   });
+};
+
+export const checkUpdateFiles = async () => {
+  if (changesFileCount && moment().diff(timeFromChangeFiles, 'seconds') > 1) {
+    changesFileCount = 0;
+    await generateFileInfo(path);
+  }
 };
 
 const generateFileInfo = async (path: string) => {
