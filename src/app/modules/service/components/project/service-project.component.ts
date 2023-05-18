@@ -24,6 +24,7 @@ import { GlobalStorageService } from '../../../../core/services/global.storage.s
 import { LocalStorageService } from '../../../../core/services/local-storage.service';
 import { LocalTmpStorageService } from '../../../../core/services/local-tmp-storage.service';
 import { ServiceProjectService } from '../../../../core/services/service/service-project.service';
+import { BlockLoadingComponent } from '../../../../shared/components/block-loading/block-loading.component';
 import { ListBoxComponent } from '../../../../shared/components/list-box/list-box.component';
 import { FileTypeImagePathPipe } from '../../../../shared/pipes/file-type-image-path.pipe';
 import { IsDroppableProjectFilePipe } from '../../../../shared/pipes/is-droppable-project-file.pipe';
@@ -58,7 +59,8 @@ import { CopyPathItemInterface } from './interfaces/copy.path.item.interface';
     DragDropModule,
     IsDroppableProjectFilePipe,
     ListBoxComponent,
-    SafeHtmlPipe
+    SafeHtmlPipe,
+    BlockLoadingComponent
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -71,6 +73,7 @@ export class ServiceProjectComponent implements OnInit {
   public panel: PanelEnum;
 
   public openDirectory$: Observable<string>;
+  public loading$: Observable<boolean>;
   public files$: Observable<ServiceProjectItemInterface[]>;
   public openedDirectories$: Observable<string[]>;
   public selectedItems$: Observable<ServiceProjectItemInterface[]>;
@@ -130,6 +133,7 @@ export class ServiceProjectComponent implements OnInit {
     });
 
     this.openedDirectories$ = this.localStorageService.select((state) => state.openedDirectories);
+    this.loading$ = this.serviceProjectService.select((state) => state.loading);
     this.files$ = this.serviceProjectService.select((state) => state.files);
     this.selectedItems$ = this.serviceProjectService.select((state) => state.selectedItems);
     this.activePanel$ = this.localTmpStorageService.select((state) => state.activePanel);
