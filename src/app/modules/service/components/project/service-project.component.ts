@@ -146,34 +146,28 @@ export class ServiceProjectComponent implements OnInit {
   public onKeydown(event: KeyboardEvent) {
     this.pressed.add(event.key);
     if (this.panel === this.localTmpStorageService.getState?.activePanel) {
+      console.log('keydown', event.key, event.shiftKey, event.metaKey);
       if (event.key === Key.Escape) {
         if (this.isShowDialog) {
           this.isShowDialog = false;
           this.formDialog.reset();
         }
+      } else if (event.key === Key.Delete) {
+        this.deleteFile();
+      } else if (event.shiftKey && (this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key === 'c') {
+        this.copyPath({ label: 'Абсолютный путь', type: 'absolutePath', result: '' });
+      } else if (this.pressed.has(Key.F6) && event.shiftKey) {
+        this.showRenameDialog();
+      } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key === 'c') {
+        this.copyFile();
+      } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key === 'v') {
+        this.pasteFile();
       }
     }
   }
 
   @HostListener('window:keyup', ['$event'])
   public onKeyup(event: KeyboardEvent) {
-    if (this.panel === this.localTmpStorageService.getState?.activePanel) {
-      if (event.key === Key.Delete) {
-        this.deleteFile();
-      } else if (
-        this.pressed.has(Key.Shift) &&
-        this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) &&
-        this.pressed.has('c')
-      ) {
-        this.copyPath({ label: 'Абсолютный путь', type: 'absolutePath', result: '' });
-      } else if (this.pressed.has(Key.Shift) && this.pressed.has(Key.F6)) {
-        this.showRenameDialog();
-      } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) && this.pressed.has('c')) {
-        this.copyFile();
-      } else if (this.pressed.has(this.electronService.isWin ? Key.Control : Key.Meta) && this.pressed.has('v')) {
-        this.pasteFile();
-      }
-    }
     this.pressed.delete(event.key);
   }
 
@@ -299,7 +293,11 @@ export class ServiceProjectComponent implements OnInit {
     const selectedItems = this.serviceProjectService.getState.selectedItems;
     for (const selectedItem of selectedItems) {
       if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-        this.electronService.fs.rmSync(selectedItem.fullPath, { recursive: true, force: true });
+        this.electronService.fs.rm(selectedItem.fullPath, { recursive: true, force: true }, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
       }
     }
     this.serviceProjectService.setSelectedItems([]);
@@ -406,9 +404,18 @@ export class ServiceProjectComponent implements OnInit {
             if (itemDirectory.items.some((item) => item === nameFile)) {
               continue;
             }
-            this.electronService.fs.cpSync(filePath, itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile, {
-              recursive: true
-            });
+            this.electronService.fs.cp(
+              filePath,
+              itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile,
+              {
+                recursive: true
+              },
+              (err) => {
+                if (err) {
+                  console.error(err);
+                }
+              }
+            );
           }
         }
       }
