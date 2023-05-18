@@ -6,6 +6,7 @@ export interface ServiceProjectDialogInfoInterface {
 }
 
 export interface ServiceProjectInterface {
+  loading: boolean;
   files: ServiceProjectItemInterface[];
   filesFlat: ServiceProjectItemInterface[];
   selectedItems: ServiceProjectItemInterface[];

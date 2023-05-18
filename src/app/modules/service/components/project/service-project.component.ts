@@ -255,16 +255,13 @@ export class ServiceProjectComponent implements OnInit {
         const fullPath = pathParent + (isWin ? `\\${this.formDialog.get('name').value}` : `/${this.formDialog.get('name').value}`);
 
         if (dialogType === ServiceProjectDialogTypeEnum.newDirectory) {
-          this.electronService.fs.mkdirSync(fullPath);
+          this.serviceProjectService.createDir(fullPath);
         } else if (dialogType === ServiceProjectDialogTypeEnum.newFile) {
-          const fd = this.electronService.fs.openSync(fullPath, 'w+');
-          this.electronService.fs.closeSync(fd);
+          this.serviceProjectService.createFile(fullPath);
         } else if (dialogType === ServiceProjectDialogTypeEnum.newPwn) {
-          const fd = this.electronService.fs.openSync(`${fullPath}.pwn`, 'w+');
-          this.electronService.fs.closeSync(fd);
+          this.serviceProjectService.createFile(`${fullPath}.pwn`);
         } else if (dialogType === ServiceProjectDialogTypeEnum.newInc) {
-          const fd = this.electronService.fs.openSync(`${fullPath}.inc`, 'w+');
-          this.electronService.fs.closeSync(fd);
+          this.serviceProjectService.createFile(`${fullPath}.inc`);
         } else if (dialogType === ServiceProjectDialogTypeEnum.rename) {
           this.renameFile();
         }
@@ -289,35 +286,12 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public deleteFile() {
-    const selectedItems = this.serviceProjectService.getState.selectedItems;
-    for (const selectedItem of selectedItems) {
-      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-        this.electronService.fs.rm(selectedItem.fullPath, { recursive: true, force: true }, (err) => {
-          if (err) {
-            console.error(err);
-          }
-        });
-      }
-    }
-    this.serviceProjectService.setSelectedItems([]);
+    this.serviceProjectService.deleteFile();
   }
 
   public renameFile() {
-    const selectedItems = this.serviceProjectService.getState.selectedItems;
     const name = this.formDialog.get('nameRename').value;
-    if (selectedItems?.length) {
-      const selectedItem = selectedItems[0];
-      const newPath = selectedItem.fullPath
-        .slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1)
-        .concat(name);
-
-      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-        this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
-        selectedItem.fullPath = newPath;
-      }
-
-      this.serviceProjectService.setSelectedItems(selectedItems);
-    }
+    this.serviceProjectService.renameFile(name);
     this.isShowDialog = false;
     this.formDialog.reset();
   }
@@ -338,18 +312,10 @@ export class ServiceProjectComponent implements OnInit {
     this.cdRef.detectChanges();
   }
 
-  public onDropFile(event: DragEvent, item: ServiceProjectItemInterface) {
-    const selectedItems = this.serviceProjectService.getState.selectedItems;
+  public onDropFile(item: ServiceProjectItemInterface) {
     this.isDragFile = false;
     this.cdRef.detectChanges();
-    for (const selectedItem of selectedItems) {
-      const newPath = item.fullPath.concat(this.electronService.isWin ? '\\' : '/').concat(selectedItem.name);
-      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
-        this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
-        selectedItem.fullPath = newPath;
-      }
-    }
-    this.serviceProjectService.setSelectedItems(selectedItems);
+    this.serviceProjectService.moveFile(item);
   }
 
   public copyFile() {
@@ -364,61 +330,7 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public pasteFile() {
-    const selectedItems = this.serviceProjectService.getState.selectedItems;
-    const parentItem = this.serviceProjectService.getState.filesFlat?.[0];
-    const newSelectedDirectoryPath: string[] = [];
-    const arrayFilesInSelectedDirectory: { path: string; items: string[] }[] = [];
-
-    for (const selectedItem of selectedItems) {
-      if (selectedItem.fullPath === parentItem.fullPath && !selectedItem.isDirectory) {
-        continue;
-      }
-      if (selectedItem.isDirectory) {
-        newSelectedDirectoryPath.push(selectedItem.fullPath);
-        continue;
-      }
-      newSelectedDirectoryPath.push(
-        selectedItem.fullPath.slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/'))
-      );
-    }
-
-    for (const selectedDirectoryPath of newSelectedDirectoryPath) {
-      if (this.electronService.fs.existsSync(selectedDirectoryPath)) {
-        arrayFilesInSelectedDirectory.push({
-          path: selectedDirectoryPath,
-          items: this.electronService.fs.readdirSync(selectedDirectoryPath)
-        });
-      }
-    }
-
-    if (window.process.platform === 'darwin') {
-      if (this.electronService.clipboard.read('NSFilenamesPboardType') && arrayFilesInSelectedDirectory?.length) {
-        const copyFilesPath: string[] = plist.parse(this.electronService.clipboard.read('NSFilenamesPboardType')) as string[];
-        for (const filePath of copyFilesPath) {
-          if (!this.electronService.fs.existsSync(filePath)) {
-            continue;
-          }
-          for (const itemDirectory of arrayFilesInSelectedDirectory) {
-            const nameFile = filePath.slice(filePath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1);
-            if (itemDirectory.items.some((item) => item === nameFile)) {
-              continue;
-            }
-            this.electronService.fs.cp(
-              filePath,
-              itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile,
-              {
-                recursive: true
-              },
-              (err) => {
-                if (err) {
-                  console.error(err);
-                }
-              }
-            );
-          }
-        }
-      }
-    }
+    this.serviceProjectService.pasteFile();
   }
 
   public copyPath(item: CopyPathItemInterface) {

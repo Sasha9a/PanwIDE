@@ -1,4 +1,5 @@
 import { ApplicationRef, Injectable } from '@angular/core';
+import plist from 'plist';
 import { BehaviorSubject } from 'rxjs';
 import { ServiceProjectItemInterface } from '../../../../../libs/interfaces/service.project.item.interface';
 import { OrderByPipe } from '../../../shared/pipes/order-by.pipe';
@@ -12,6 +13,7 @@ import { StoreService } from '../store.service';
 })
 export class ServiceProjectService extends StoreService<ServiceProjectInterface> {
   protected state: BehaviorSubject<ServiceProjectInterface> = new BehaviorSubject<ServiceProjectInterface>({
+    loading: false,
     files: [],
     filesFlat: [],
     selectedItems: [],
@@ -37,6 +39,9 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
     this.updateState({ files: [...files] });
     this.updateFilesFlat();
     this.checkSelectedItems();
+    if (this.getState.loading) {
+      this.updateState({ loading: false });
+    }
   }
 
   public setSelectedItems(selectedItems: ServiceProjectItemInterface[]) {
@@ -51,6 +56,133 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
 
   public setDialogInfo(dialogInfo: ServiceProjectDialogInfoInterface) {
     this.updateState({ dialogInfo: { ...dialogInfo } });
+  }
+
+  public createFile(path: string) {
+    this.updateState({ loading: true });
+    const fd = this.electronService.fs.openSync(path, 'w+');
+    this.electronService.fs.closeSync(fd);
+  }
+
+  public createDir(path: string) {
+    this.updateState({ loading: true });
+    this.electronService.fs.mkdirSync(path);
+  }
+
+  public deleteFile() {
+    const selectedItems = this.getState.selectedItems;
+
+    this.updateState({ loading: true });
+
+    for (const selectedItem of selectedItems) {
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        this.electronService.fs.rm(selectedItem.fullPath, { recursive: true, force: true }, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+      }
+    }
+    this.setSelectedItems([]);
+  }
+
+  public renameFile(newName: string) {
+    const selectedItems = this.getState.selectedItems;
+
+    this.updateState({ loading: true });
+
+    if (selectedItems?.length) {
+      const selectedItem = selectedItems[0];
+      const newPath = selectedItem.fullPath
+        .slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1)
+        .concat(newName);
+
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        this.electronService.fs.renameSync(selectedItem.fullPath, newPath);
+        selectedItem.fullPath = newPath;
+      }
+
+      this.setSelectedItems(selectedItems);
+    }
+  }
+
+  public pasteFile() {
+    const selectedItems = this.getState.selectedItems;
+    const parentItem = this.getState.filesFlat?.[0];
+    const newSelectedDirectoryPath: string[] = [];
+    const arrayFilesInSelectedDirectory: { path: string; items: string[] }[] = [];
+
+    this.updateState({ loading: true });
+
+    for (const selectedItem of selectedItems) {
+      if (selectedItem.fullPath === parentItem.fullPath && !selectedItem.isDirectory) {
+        continue;
+      }
+      if (selectedItem.isDirectory) {
+        newSelectedDirectoryPath.push(selectedItem.fullPath);
+        continue;
+      }
+      newSelectedDirectoryPath.push(
+        selectedItem.fullPath.slice(0, selectedItem.fullPath.lastIndexOf(this.electronService.isWin ? '\\' : '/'))
+      );
+    }
+
+    for (const selectedDirectoryPath of newSelectedDirectoryPath) {
+      if (this.electronService.fs.existsSync(selectedDirectoryPath)) {
+        arrayFilesInSelectedDirectory.push({
+          path: selectedDirectoryPath,
+          items: this.electronService.fs.readdirSync(selectedDirectoryPath)
+        });
+      }
+    }
+
+    if (window.process.platform === 'darwin') {
+      if (this.electronService.clipboard.read('NSFilenamesPboardType') && arrayFilesInSelectedDirectory?.length) {
+        const copyFilesPath: string[] = plist.parse(this.electronService.clipboard.read('NSFilenamesPboardType')) as string[];
+        for (const filePath of copyFilesPath) {
+          if (!this.electronService.fs.existsSync(filePath)) {
+            continue;
+          }
+          for (const itemDirectory of arrayFilesInSelectedDirectory) {
+            const nameFile = filePath.slice(filePath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1);
+            if (itemDirectory.items.some((item) => item === nameFile)) {
+              continue;
+            }
+            this.electronService.fs.cp(
+              filePath,
+              itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile,
+              {
+                recursive: true
+              },
+              (err) => {
+                if (err) {
+                  console.error(err);
+                }
+              }
+            );
+          }
+        }
+      }
+    }
+  }
+
+  public moveFile(item: ServiceProjectItemInterface) {
+    const selectedItems = this.getState.selectedItems;
+
+    this.updateState({ loading: true });
+
+    for (const selectedItem of selectedItems) {
+      const newPath = item.fullPath.concat(this.electronService.isWin ? '\\' : '/').concat(selectedItem.name);
+      if (this.electronService.fs.existsSync(selectedItem.fullPath)) {
+        this.electronService.fs.rename(selectedItem.fullPath, newPath, (err) => {
+          if (err) {
+            console.error(err);
+          }
+        });
+        selectedItem.fullPath = newPath;
+      }
+    }
+    this.setSelectedItems(selectedItems);
   }
 
   public checkSelectedItems() {

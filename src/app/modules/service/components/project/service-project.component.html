@@ -20,7 +20,7 @@
             *ngIf="isDragFile"
             pDroppable="projectFile"
             [pDroppableDisabled]="!(selectedItems$ | async | isDroppableProjectFile : item)"
-            (onDrop)="onDropFile($event, item)"
+            (onDrop)="onDropFile(item)"
             class="absolute w-full h-full change-project-file"
           ></div>
 
