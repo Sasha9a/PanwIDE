@@ -157,13 +157,13 @@ export class ServiceProjectComponent implements OnInit {
         }
       } else if (event.key === Key.Delete) {
         this.deleteFile();
-      } else if (event.shiftKey && (this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key === 'c') {
+      } else if (event.shiftKey && (this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key.toLowerCase() === 'c') {
         this.copyPath({ label: 'Абсолютный путь', type: 'absolutePath', result: '' });
       } else if (this.pressed.has(Key.F6) && event.shiftKey) {
         this.showRenameDialog();
-      } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key === 'c') {
+      } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key.toLowerCase() === 'c') {
         this.copyFile();
-      } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key === 'v') {
+      } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key.toLowerCase() === 'v') {
         this.pasteFile();
       }
     }
