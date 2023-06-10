@@ -144,6 +144,14 @@ export class ServiceProjectComponent implements OnInit {
     });
 
     this.setContextMenuItems();
+
+    window.addEventListener('paste', (e: ClipboardEvent) => {
+      console.log(e);
+
+      for (const f of e.clipboardData.files as any) {
+        console.log('File(s) you pasted here: ', f.path);
+      }
+    });
   }
 
   @HostListener('window:keydown', ['$event'])

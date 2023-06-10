@@ -12,7 +12,7 @@ export let win: BrowserWindow = null;
 const args = process.argv.slice(1),
   serve = args.some((val) => val === '--serve');
 
-function createWindow(): BrowserWindow {
+const createWindow = (): BrowserWindow => {
   const size = screen.getPrimaryDisplay().workAreaSize;
 
   // Create the browser window.
@@ -66,7 +66,7 @@ function createWindow(): BrowserWindow {
   });
 
   return win;
-}
+};
 
 try {
   // This method will be called when Electron has finished
