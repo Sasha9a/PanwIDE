@@ -335,6 +335,16 @@ export class ServiceProjectComponent implements OnInit {
         'NSFilenamesPboardType',
         Buffer.from(plist.build(selectedItems.map((selectedItem) => selectedItem.fullPath)))
       );
+    } else if (window.process.platform === 'win32') {
+      const uriListBytes = new TextEncoder().encode(
+        selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n')
+      );
+      console.log(uriListBytes);
+      this.electronService.clipboard.writeBuffer(
+        'text/uri-list',
+        Buffer.from(selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n') as any)
+      );
+      this.electronService.clipboard.writeText(selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n'));
     }
   }
 
