@@ -144,14 +144,13 @@ export class ServiceProjectComponent implements OnInit {
     });
 
     this.setContextMenuItems();
+  }
 
-    window.addEventListener('paste', (e: ClipboardEvent) => {
-      console.log(e);
-
-      for (const f of e.clipboardData.files as any) {
-        console.log('File(s) you pasted here: ', f.path);
-      }
-    });
+  @HostListener('window:paste', ['$event'])
+  public onPaste(event: ClipboardEvent) {
+    if (this.panel === this.localTmpStorageService.getState?.activePanel && event.clipboardData.files?.length) {
+      this.serviceProjectService.pasteFile(event.clipboardData.files as any);
+    }
   }
 
   @HostListener('window:keydown', ['$event'])
@@ -171,8 +170,6 @@ export class ServiceProjectComponent implements OnInit {
         this.showRenameDialog();
       } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key.toLowerCase() === 'c') {
         this.copyFile();
-      } else if ((this.electronService.isWin ? event.ctrlKey : event.metaKey) && event.key.toLowerCase() === 'v') {
-        this.pasteFile();
       }
     }
   }
@@ -339,10 +336,6 @@ export class ServiceProjectComponent implements OnInit {
         Buffer.from(plist.build(selectedItems.map((selectedItem) => selectedItem.fullPath)))
       );
     }
-  }
-
-  public pasteFile() {
-    this.serviceProjectService.pasteFile();
   }
 
   public copyPath(item: CopyPathItemInterface) {
@@ -546,7 +539,7 @@ export class ServiceProjectComponent implements OnInit {
                 </div>`,
         escape: false,
         command: () => {
-          this.pasteFile();
+          document.execCommand('paste');
         }
       },
       {

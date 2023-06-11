@@ -1,5 +1,4 @@
 import { ApplicationRef, Injectable } from '@angular/core';
-import plist from 'plist';
 import { BehaviorSubject } from 'rxjs';
 import { ServiceProjectItemInterface } from '../../../../../libs/interfaces/service.project.item.interface';
 import { OrderByPipe } from '../../../shared/pipes/order-by.pipe';
@@ -106,7 +105,7 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
     }
   }
 
-  public pasteFile() {
+  public pasteFile(files: File[]) {
     const selectedItems = this.getState.selectedItems;
     const parentItem = this.getState.filesFlat?.[0];
     const newSelectedDirectoryPath: string[] = [];
@@ -136,31 +135,28 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
       }
     }
 
-    if (window.process.platform === 'darwin') {
-      if (this.electronService.clipboard.read('NSFilenamesPboardType') && arrayFilesInSelectedDirectory?.length) {
-        const copyFilesPath: string[] = plist.parse(this.electronService.clipboard.read('NSFilenamesPboardType')) as string[];
-        for (const filePath of copyFilesPath) {
-          if (!this.electronService.fs.existsSync(filePath)) {
+    if (files?.length && arrayFilesInSelectedDirectory?.length) {
+      for (const filePath of files) {
+        if (!this.electronService.fs.existsSync(filePath.path)) {
+          continue;
+        }
+        for (const itemDirectory of arrayFilesInSelectedDirectory) {
+          const nameFile = filePath.path.slice(filePath.path.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1);
+          if (itemDirectory.items.some((item) => item === nameFile)) {
             continue;
           }
-          for (const itemDirectory of arrayFilesInSelectedDirectory) {
-            const nameFile = filePath.slice(filePath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1);
-            if (itemDirectory.items.some((item) => item === nameFile)) {
-              continue;
-            }
-            this.electronService.fs.cp(
-              filePath,
-              itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile,
-              {
-                recursive: true
-              },
-              (err) => {
-                if (err) {
-                  console.error(err);
-                }
+          this.electronService.fs.cp(
+            filePath.path,
+            itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile,
+            {
+              recursive: true
+            },
+            (err) => {
+              if (err) {
+                console.error(err);
               }
-            );
-          }
+            }
+          );
         }
       }
     }
