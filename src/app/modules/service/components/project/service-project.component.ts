@@ -146,6 +146,21 @@ export class ServiceProjectComponent implements OnInit {
     this.setContextMenuItems();
   }
 
+  @HostListener('window:copy', ['$event'])
+  public onCopy(event: ClipboardEvent) {
+    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    console.log(this.electronService.clipboard.availableFormats());
+    console.log(this.electronService.clipboard.readText('text/uri-list' as any));
+    this.electronService.clipboard.writeBuffer(
+      'text/uri-list',
+      Buffer.from(selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n'))
+    );
+    this.electronService.clipboard.writeText(
+      selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n'),
+      'text/uri-list' as any
+    );
+  }
+
   @HostListener('window:paste', ['$event'])
   public onPaste(event: ClipboardEvent) {
     if (this.panel === this.localTmpStorageService.getState?.activePanel && event.clipboardData.files?.length) {
@@ -335,16 +350,6 @@ export class ServiceProjectComponent implements OnInit {
         'NSFilenamesPboardType',
         Buffer.from(plist.build(selectedItems.map((selectedItem) => selectedItem.fullPath)))
       );
-    } else if (window.process.platform === 'win32') {
-      const uriListBytes = new TextEncoder().encode(
-        selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n')
-      );
-      console.log(uriListBytes);
-      this.electronService.clipboard.writeBuffer(
-        'text/uri-list',
-        Buffer.from(selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n') as any)
-      );
-      this.electronService.clipboard.writeText(selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n'));
     }
   }
 
