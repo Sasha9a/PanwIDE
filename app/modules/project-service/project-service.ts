@@ -1,4 +1,5 @@
 import * as chokidar from 'chokidar';
+import * as clipboard from 'clipboard-files';
 import { ipcMain } from 'electron';
 import * as fs from 'fs';
 import moment from 'moment-timezone';
@@ -42,6 +43,14 @@ export const createHandles = () => {
     watcher.on('error', (error) => {
       console.error(`Error to work in chokidar: "${error.name}" ${error.message}`);
     });
+  });
+
+  ipcMain.handle(IpcChannelEnum.SERVICE_PROJECT_COPY_FILES, (event, _paths: string[]) => {
+    clipboard.writeFiles(_paths);
+  });
+
+  ipcMain.handle(IpcChannelEnum.SERVICE_PROJECT_START_READ_FILES, () => {
+    win.webContents.send(IpcChannelEnum.SERVICE_PROJECT_READ_FILES, clipboard.readFiles());
   });
 };
 

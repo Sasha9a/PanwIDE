@@ -105,11 +105,15 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
     }
   }
 
-  public pasteFile(files: File[]) {
+  public pasteFile(files: string[]) {
     const selectedItems = this.getState.selectedItems;
     const parentItem = this.getState.filesFlat?.[0];
     const newSelectedDirectoryPath: string[] = [];
     const arrayFilesInSelectedDirectory: { path: string; items: string[] }[] = [];
+
+    if (!selectedItems?.length) {
+      return;
+    }
 
     this.updateState({ loading: true });
 
@@ -137,16 +141,16 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
 
     if (files?.length && arrayFilesInSelectedDirectory?.length) {
       for (const filePath of files) {
-        if (!this.electronService.fs.existsSync(filePath.path)) {
+        if (!this.electronService.fs.existsSync(filePath)) {
           continue;
         }
         for (const itemDirectory of arrayFilesInSelectedDirectory) {
-          const nameFile = filePath.path.slice(filePath.path.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1);
+          const nameFile = filePath.slice(filePath.lastIndexOf(this.electronService.isWin ? '\\' : '/') + 1);
           if (itemDirectory.items.some((item) => item === nameFile)) {
             continue;
           }
           this.electronService.fs.cp(
-            filePath.path,
+            filePath,
             itemDirectory.path + (this.electronService.isWin ? '\\' : '/') + nameFile,
             {
               recursive: true

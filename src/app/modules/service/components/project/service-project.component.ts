@@ -143,28 +143,25 @@ export class ServiceProjectComponent implements OnInit {
       this.serviceProjectService.setFiles(files);
     });
 
+    this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_READ_FILES, (event, files: string[]) => {
+      console.log(files);
+      this.serviceProjectService.pasteFile(files);
+    });
+
     this.setContextMenuItems();
   }
 
   @HostListener('window:copy', ['$event'])
-  public onCopy(event: ClipboardEvent) {
-    const selectedItems = this.serviceProjectService.getState.selectedItems;
-    console.log(this.electronService.clipboard.availableFormats());
-    console.log(this.electronService.clipboard.readText('text/uri-list' as any));
-    this.electronService.clipboard.writeBuffer(
-      'text/uri-list',
-      Buffer.from(selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n'))
-    );
-    this.electronService.clipboard.writeText(
-      selectedItems.map((item) => `file:///${item.fullPath.replace(/\\/g, '/')}`).join('\r\n'),
-      'text/uri-list' as any
-    );
+  public onCopy() {
+    if (this.panel === this.localTmpStorageService.getState?.activePanel) {
+      this.copyFile();
+    }
   }
 
   @HostListener('window:paste', ['$event'])
-  public onPaste(event: ClipboardEvent) {
-    if (this.panel === this.localTmpStorageService.getState?.activePanel && event.clipboardData.files?.length) {
-      this.serviceProjectService.pasteFile(event.clipboardData.files as any);
+  public onPaste() {
+    if (this.panel === this.localTmpStorageService.getState?.activePanel) {
+      this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_START_READ_FILES).catch(console.error);
     }
   }
 
@@ -344,12 +341,22 @@ export class ServiceProjectComponent implements OnInit {
 
   public copyFile() {
     const selectedItems = this.serviceProjectService.getState.selectedItems;
+    if (!selectedItems?.length) {
+      return;
+    }
 
     if (window.process.platform === 'darwin') {
       this.electronService.clipboard.writeBuffer(
         'NSFilenamesPboardType',
         Buffer.from(plist.build(selectedItems.map((selectedItem) => selectedItem.fullPath)))
       );
+    } else {
+      this.electronService.ipcRenderer
+        .invoke(
+          IpcChannelEnum.SERVICE_PROJECT_COPY_FILES,
+          selectedItems.map((selectedItem) => selectedItem.fullPath)
+        )
+        .catch(console.error);
     }
   }
 
@@ -554,7 +561,7 @@ export class ServiceProjectComponent implements OnInit {
                 </div>`,
         escape: false,
         command: () => {
-          document.execCommand('paste');
+          this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_START_READ_FILES).catch(console.error);
         }
       },
       {
