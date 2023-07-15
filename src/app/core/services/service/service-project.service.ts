@@ -71,6 +71,10 @@ export class ServiceProjectService extends StoreService<ServiceProjectInterface>
   public deleteFile() {
     const selectedItems = this.getState.selectedItems;
 
+    if (!selectedItems?.length) {
+      return;
+    }
+
     this.updateState({ loading: true });
 
     for (const selectedItem of selectedItems) {

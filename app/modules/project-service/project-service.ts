@@ -52,6 +52,15 @@ export const createHandles = () => {
   ipcMain.handle(IpcChannelEnum.SERVICE_PROJECT_START_READ_FILES, () => {
     win.webContents.send(IpcChannelEnum.SERVICE_PROJECT_READ_FILES, clipboard.readFiles());
   });
+
+  ipcMain.handle('startCustomDrag', (event, filesPath: string[]) => {
+    const isWin = process.platform === 'win32';
+    event.sender.startDrag({
+      file: '',
+      files: filesPath,
+      icon: isWin ? `${__dirname}\\icons\\drag.png` : `${__dirname}/icons/drag.png`
+    });
+  });
 };
 
 export const checkUpdateFiles = async () => {

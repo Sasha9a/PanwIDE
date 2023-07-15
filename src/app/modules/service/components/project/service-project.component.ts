@@ -144,7 +144,6 @@ export class ServiceProjectComponent implements OnInit {
     });
 
     this.electronService.ipcRenderer.on(IpcChannelEnum.SERVICE_PROJECT_READ_FILES, (event, files: string[]) => {
-      console.log(files);
       this.serviceProjectService.pasteFile(files);
     });
 
@@ -318,14 +317,22 @@ export class ServiceProjectComponent implements OnInit {
   }
 
   public onStartDragFile(event: DragEvent, item: ServiceProjectItemInterface) {
-    const selectedItems = this.serviceProjectService.getState.selectedItems;
+    event.preventDefault();
+    let selectedItems = this.serviceProjectService.getState.selectedItems;
     if (selectedItems.findIndex((selectedItem) => selectedItem.fullPath === item.fullPath) === -1) {
       this.serviceProjectService.setSelectedItems([item]);
+      selectedItems = this.serviceProjectService.getState.selectedItems;
     }
 
     this.isDragFile = true;
     this.cdRef.detectChanges();
     event.dataTransfer.setDragImage(this.dragFileInfoTooltip.nativeElement, 0, 0);
+    this.electronService.ipcRenderer
+      .invoke(
+        'startCustomDrag',
+        selectedItems.map((selectedItem) => selectedItem.fullPath)
+      )
+      .catch(console.error);
   }
 
   public onDragEndFile() {
