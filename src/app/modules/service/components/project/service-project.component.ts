@@ -160,7 +160,7 @@ export class ServiceProjectComponent implements OnInit {
   @HostListener('window:paste', ['$event'])
   public onPaste() {
     if (this.panel === this.localTmpStorageService.getState?.activePanel) {
-      this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_START_READ_FILES).catch(console.error);
+      this.pasteFile();
     }
   }
 
@@ -386,6 +386,14 @@ export class ServiceProjectComponent implements OnInit {
     }
   }
 
+  public pasteFile() {
+    if (window.process.platform === 'darwin') {
+      document.execCommand('paste');
+    } else {
+      this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_START_READ_FILES).catch(console.error);
+    }
+  }
+
   private setContextMenuItems() {
     this.contextMenuItems = [
       {
@@ -568,7 +576,7 @@ export class ServiceProjectComponent implements OnInit {
                 </div>`,
         escape: false,
         command: () => {
-          this.electronService.ipcRenderer.invoke(IpcChannelEnum.SERVICE_PROJECT_START_READ_FILES).catch(console.error);
+          this.pasteFile();
         }
       },
       {
