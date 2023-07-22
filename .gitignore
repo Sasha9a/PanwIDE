@@ -1,11 +1,11 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
 # compiled output
-/dist
-/tmp
-/out-tsc
-/app-builds
-/release
+web/dist
+web/tmp
+web/out-tsc
+web/app-builds
+web/release
 main.js
 src/**/*.js
 app/**/*.js
@@ -14,6 +14,7 @@ app/**/*.js
 
 # dependencies
 node_modules
+.angular
 
 # IDEs and editors
 .idea
