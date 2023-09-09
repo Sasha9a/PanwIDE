@@ -1,51 +1,3 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
-# compiled output
-web/dist
-web/tmp
-web/out-tsc
-web/app-builds
-web/release
-main.js
-src/**/*.js
-app/**/*.js
-!src/karma.conf.js
-*.js.map
-
-# dependencies
-node_modules
-.angular
-
-# IDEs and editors
-.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.angular/cache
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-testem.log
-/typings
-
-# System Files
-.DS_Store
-Thumbs.db
-
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -62,7 +14,9 @@ target/
 
 ### Eclipse ###
 .apt_generated
+.classpath
 .factorypath
+.project
 .settings
 .springBeans
 .sts4-cache
@@ -79,3 +33,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Mac OS ###
+.DS_Store
